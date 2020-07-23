@@ -18,11 +18,34 @@ public class Main {
         
         logger.info("Starting application");
         
+        int port = getPort();
+        
         ResourceFactory resourceFactory = new ResourceFactory(
                 new TennisCourtFakeRepository(),
                 new ReservationFakeRepository());
         
-        new HttpServer(7777, resourceFactory).start();
+        new HttpServer(port, resourceFactory).start();
+    }
+    
+    private static int getPort() {
+        String port = loadMandatoryEnvVariable("PORT");
+
+        try {
+            int portNumber = Integer.parseInt(port);
+            logger.info("PORT: " + port);
+            return portNumber;
+        } catch (NumberFormatException ex) {
+            throw new IllegalArgumentException("Illegal system environment variable PORT: " + port);
+        }
+    }
+    
+    private static String loadMandatoryEnvVariable(String name) {
+        String variable = System.getenv(name);
+        if (variable == null) {
+            throw new IllegalArgumentException("System environment variable " + name + " is missing");
+        } else {
+            return variable;
+        }
     }
 
 }
