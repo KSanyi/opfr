@@ -1,52 +1,44 @@
 package hu.kits.tennis.infrastructure.http;
 
-import java.lang.invoke.MethodHandles;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.json.JSONObject;
 
 import hu.kits.tennis.common.DateRange;
 import hu.kits.tennis.domain.common.DailyTimeRange;
-import hu.kits.tennis.domain.court.TennisCourt;
-import hu.kits.tennis.domain.court.TennisCourtService;
 import hu.kits.tennis.domain.reservation.ReservationService;
-import hu.kits.tennis.domain.user.Role;
 import hu.kits.tennis.domain.user.User;
+import hu.kits.tennis.domain.user.UserService;
+import hu.kits.tennis.infrastructure.http.jsonmapper.JsonMapper;
 import io.javalin.http.Context;
 
-public class ReservationHandler {
+class ReservationHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    
     private final ReservationService reservationService;
+    private final UserService userService;
 
-    public ReservationHandler(ReservationService reservationService) {
+    ReservationHandler(UserService userService, ReservationService reservationService) {
         this.reservationService = reservationService;
+        this.userService = userService;
     }
     
-    private User user = new User("T1", "TTT", Role.ADMIN);
-    
-    public void handleListMyReservationsRequest(Context context) {
+    void handleListMyReservationsRequest(Context context) {
         
-        try {
-            context.json(reservationService.listMyReservations(user, DateRange.of(2020)));
-        } catch(Exception ex) {
-            logger.error("Bad request: ", ex);
-            throw new HttpServer.BadRequestException(ex.getMessage()); 
-        }
-        
+        String userId = context.pathParam("userId");
+        User user = userService.findUser(userId);
+        context.json(reservationService.listMyReservations(user, DateRange.of(2020)));
     }
     
-    public void handleReservationRequest(Context context) {
+    void reserveCourt(Context context) {
         
-        try {
-            reservationService.reserveCourt(user, "1", new DailyTimeRange("2020-08-01", 10, 2), "");
-        } catch(Exception ex) {
-            logger.error("Bad request: ", ex);
-            throw new HttpServer.BadRequestException(ex.getMessage()); 
-        }
+        String userId = context.pathParam("userId");
+        User user = userService.findUser(userId);
         
+        JSONObject jsonObject = new JSONObject(context.body());
+        
+        String courtId = jsonObject.getString("courtId");
+        DailyTimeRange dailyTimeRange = JsonMapper.parseDailyTimeRange(jsonObject.getJSONObject("dailyTimeRange"));
+        String comment = jsonObject.getString("comment");
+        
+        reservationService.reserveCourt(user, courtId, dailyTimeRange, comment);
     }
     
 }

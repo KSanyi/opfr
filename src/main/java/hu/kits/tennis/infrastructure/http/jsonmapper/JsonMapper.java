@@ -3,17 +3,21 @@ package hu.kits.tennis.infrastructure.http.jsonmapper;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import hu.kits.tennis.domain.common.DailyTimeRange;
 import hu.kits.tennis.domain.common.TimeRange;
 import hu.kits.tennis.domain.court.TennisCourt;
 import hu.kits.tennis.domain.reservation.Reservation;
+import hu.kits.tennis.domain.user.Role;
 import hu.kits.tennis.domain.user.User;
+import hu.kits.tennis.infrastructure.http.HttpServer;
 
 public class JsonMapper {
 
@@ -57,9 +61,25 @@ public class JsonMapper {
     private static JSONObject mapUserToJson(User user) {
         
         return new JSONObject()
-                .put("id", user.id())
+                .put("userId", user.userId())
                 .put("name", user.name())
-                .put("role", user.role());
+                .put("email", user.email())
+                .put("phone", user.phone())
+                .put("role", user.role().name());
+    }
+    
+    public static User parseUser(JSONObject jsonObject) {
+        try {
+            return new User(
+                    jsonObject.getString("userId"),
+                    jsonObject.getString("name"),
+                    Role.valueOf(jsonObject.getString("role")),
+                    jsonObject.getString("phone"),
+                    jsonObject.getString("email"),
+                    jsonObject.getBoolean("isActive"));
+        } catch(JSONException | IllegalArgumentException ex) {
+            throw new HttpServer.BadRequestException(ex.getMessage());
+        }
     }
     
     private static JSONObject mapTimeRangeToJson(TimeRange timeRange) {
@@ -74,6 +94,26 @@ public class JsonMapper {
         return new JSONObject()
                 .put("date", dailyTimeRange.date())
                 .put("timeRange", mapTimeRangeToJson(dailyTimeRange.timeRange()));
+    }
+    
+    public static DailyTimeRange parseDailyTimeRange(JSONObject jsonObject) {
+        try {
+            return new DailyTimeRange(
+                    LocalDate.parse(jsonObject.getString("date")),
+                    parseTimeRange(jsonObject.getJSONObject("timeRange")));
+        } catch(JSONException | IllegalArgumentException ex) {
+            throw new HttpServer.BadRequestException(ex.getMessage());
+        }
+    }
+    
+    public static TimeRange parseTimeRange(JSONObject jsonObject) {
+        try {
+            return new TimeRange(
+                    jsonObject.getInt("startAt"),
+                    jsonObject.getInt("hours"));
+        } catch(JSONException | IllegalArgumentException ex) {
+            throw new HttpServer.BadRequestException(ex.getMessage());
+        }
     }
     
     private static JSONObject mapReservationToJson(Reservation reservation) {

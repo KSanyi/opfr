@@ -32,7 +32,7 @@ public class ReservationFakeRepository implements ReservationRepository {
     public List<Reservation> load(DateRange dateRange, User user) {
         return reservations.stream()
                 .filter(res -> dateRange.contains(res.dailyTimeRange().date()))
-                .filter(res -> res.user().id().equals(user.id()))
+                .filter(res -> res.user().userId().equals(user.userId()))
                 .collect(toList());
     }
 

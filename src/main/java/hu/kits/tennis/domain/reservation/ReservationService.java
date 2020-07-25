@@ -10,6 +10,7 @@ import java.util.Map;
 import hu.kits.tennis.common.Clock;
 import hu.kits.tennis.common.DateRange;
 import hu.kits.tennis.domain.common.DailyTimeRange;
+import hu.kits.tennis.domain.common.OPFRException;
 import hu.kits.tennis.domain.court.TennisCourt;
 import hu.kits.tennis.domain.court.TennisCourtRepository;
 import hu.kits.tennis.domain.user.User;
@@ -33,7 +34,7 @@ public class ReservationService {
                 .collect(toList());
     }
     
-    public boolean reserveCourt(User user, String courtId, DailyTimeRange dailyTimeRange, String comment) {
+    public boolean reserveCourt(User user, String courtId, DailyTimeRange dailyTimeRange, String comment) throws OPFRException {
         
         boolean courtAvailable = isCourtAvailableAt(courtId, dailyTimeRange);
         if(courtAvailable) {
@@ -41,7 +42,7 @@ public class ReservationService {
             reservationRepository.save(reservation);
             return true;    
         } else {
-            return false;
+            throw new OPFRException("Court is not available");
         }
     }
     
