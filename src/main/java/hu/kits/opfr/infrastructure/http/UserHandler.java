@@ -5,6 +5,7 @@ import java.util.List;
 import org.json.JSONObject;
 
 import hu.kits.opfr.domain.user.AuthenticationException;
+import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
 import hu.kits.opfr.domain.user.User;
 import hu.kits.opfr.domain.user.UserService;
 import hu.kits.opfr.infrastructure.http.jsonmapper.JsonMapper;
@@ -80,11 +81,10 @@ class UserHandler {
         String userId = context.pathParam("userId");
         
         JSONObject jsonObject = new JSONObject(context.body());
-        String password = jsonObject.getString("password");
-        String newPassword = jsonObject.getString("newPassword");
+        PasswordChangeRequest passwordChangeRequest = RequestParser.parsePasswordChangeRequest(jsonObject);
         
         try {
-            userService.changePassword(userId, password, newPassword);
+            userService.changePassword(userId, passwordChangeRequest);
         } catch(AuthenticationException ex) {
             context.status(401).result("Unauthorized");
         }

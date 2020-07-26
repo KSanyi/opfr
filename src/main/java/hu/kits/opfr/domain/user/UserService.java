@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import hu.kits.opfr.common.Pair;
+import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
 import hu.kits.opfr.domain.user.password.PasswordGenerator;
 import hu.kits.opfr.domain.user.password.PasswordHasher;
 
@@ -85,7 +86,10 @@ public class UserService {
         }
     }
     
-    public void changePassword(String userId, String oldPassword, String newPassword) throws AuthenticationException {
+    public void changePassword(String userId, PasswordChangeRequest passwordChangeRequest) throws AuthenticationException {
+        
+        String oldPassword = passwordChangeRequest.oldPassword();
+        String newPassword = passwordChangeRequest.newPassword(); 
         
         logger.info("Password change request for user '{}'", userId);
         

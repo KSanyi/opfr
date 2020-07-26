@@ -3,11 +3,10 @@ package hu.kits.opfr.infrastructure.http;
 import org.json.JSONObject;
 
 import hu.kits.opfr.common.DateRange;
-import hu.kits.opfr.domain.common.DailyTimeRange;
+import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.reservation.ReservationService;
 import hu.kits.opfr.domain.user.User;
 import hu.kits.opfr.domain.user.UserService;
-import hu.kits.opfr.infrastructure.http.jsonmapper.JsonMapper;
 import io.javalin.http.Context;
 
 class ReservationHandler {
@@ -34,11 +33,9 @@ class ReservationHandler {
         
         JSONObject jsonObject = new JSONObject(context.body());
         
-        String courtId = jsonObject.getString("courtId");
-        DailyTimeRange dailyTimeRange = JsonMapper.parseDailyTimeRange(jsonObject.getJSONObject("dailyTimeRange"));
-        String comment = jsonObject.getString("comment");
+        ReservationRequest reservationRequest = RequestParser.parseReservationRequest(jsonObject);
         
-        reservationService.reserveCourt(user, courtId, dailyTimeRange, comment);
+        reservationService.reserveCourt(user, reservationRequest);
     }
     
 }

@@ -15,6 +15,7 @@ import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.court.TennisCourt;
+import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.infrastructure.database.ReservationFakeRepository;
 import hu.kits.opfr.infrastructure.database.TennisCourtFakeRepository;
 
@@ -30,13 +31,13 @@ public class ReservationServiceTest {
     @Test
     void reserveSuccesfully() {
         
-        reservationService.reserveCourt(TEST_MEMBER_1, "1", new DailyTimeRange("2020-08-01", 10, 2), "");
+        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-01", 10, 2), ""));
         
-        reservationService.reserveCourt(TEST_MEMBER_1, "1", new DailyTimeRange("2020-08-01", 19, 1), "");
+        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-01", 19, 1), ""));
         
-        reservationService.reserveCourt(TEST_MEMBER_1, "1", new DailyTimeRange("2020-08-02", 10, 2), "");
+        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-02", 10, 2), ""));
         
-        reservationService.reserveCourt(TEST_MEMBER_1, "2", new DailyTimeRange("2020-08-01", 10, 2), "");
+        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("2", new DailyTimeRange("2020-08-01", 10, 2), ""));
         
         List<Reservation> member1Reservations = reservationService.listMyReservations(TEST_MEMBER_1, DateRange.of(2020));
         
@@ -50,10 +51,10 @@ public class ReservationServiceTest {
     @Test
     void reserveFailed() {
         
-        reservationService.reserveCourt(TEST_MEMBER_1, "1", new DailyTimeRange("2020-08-01", 10, 2), "");
+        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-01", 10, 2), ""));
         
         OPFRException exception = Assertions.assertThrows(OPFRException.class, () -> {
-            reservationService.reserveCourt(TEST_MEMBER_2, "1", new DailyTimeRange("2020-08-01", 11, 1), "");
+            reservationService.reserveCourt(TEST_MEMBER_2, new ReservationRequest("1", new DailyTimeRange("2020-08-01", 11, 1), ""));
         });
         assertEquals("Court is not available", exception.getMessage());
     }
@@ -66,7 +67,7 @@ public class ReservationServiceTest {
         List<TennisCourt> availableCourts = reservationService.listAvailableCourts(myTennisTime);
         assertEquals(4, availableCourts.size());
         
-        reservationService.reserveCourt(TEST_MEMBER_1, "1", myTennisTime, "");
+        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", myTennisTime, ""));
         
         availableCourts = reservationService.listAvailableCourts(myTennisTime);
         assertEquals(3, availableCourts.size());

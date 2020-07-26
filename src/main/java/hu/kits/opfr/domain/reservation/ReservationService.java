@@ -13,6 +13,7 @@ import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.court.TennisCourtRepository;
+import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.user.User;
 
 public class ReservationService {
@@ -34,7 +35,11 @@ public class ReservationService {
                 .collect(toList());
     }
     
-    public void reserveCourt(User user, String courtId, DailyTimeRange dailyTimeRange, String comment) throws OPFRException {
+    public void reserveCourt(User user, ReservationRequest reservationRequest) throws OPFRException {
+        
+        String courtId = reservationRequest.courtId();
+        DailyTimeRange dailyTimeRange = reservationRequest.dailyTimeRange();
+        String comment = reservationRequest.comment();
         
         boolean courtAvailable = isCourtAvailableAt(courtId, dailyTimeRange);
         if(courtAvailable) {

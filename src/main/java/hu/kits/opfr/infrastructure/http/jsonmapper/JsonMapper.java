@@ -3,7 +3,6 @@ package hu.kits.opfr.infrastructure.http.jsonmapper;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
-import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 
@@ -94,26 +93,6 @@ public class JsonMapper {
         return new JSONObject()
                 .put("date", dailyTimeRange.date())
                 .put("timeRange", mapTimeRangeToJson(dailyTimeRange.timeRange()));
-    }
-    
-    public static DailyTimeRange parseDailyTimeRange(JSONObject jsonObject) {
-        try {
-            return new DailyTimeRange(
-                    LocalDate.parse(jsonObject.getString("date")),
-                    parseTimeRange(jsonObject.getJSONObject("timeRange")));
-        } catch(JSONException | IllegalArgumentException ex) {
-            throw new HttpServer.BadRequestException(ex.getMessage());
-        }
-    }
-    
-    public static TimeRange parseTimeRange(JSONObject jsonObject) {
-        try {
-            return new TimeRange(
-                    jsonObject.getInt("startAt"),
-                    jsonObject.getInt("hours"));
-        } catch(JSONException | IllegalArgumentException ex) {
-            throw new HttpServer.BadRequestException(ex.getMessage());
-        }
     }
     
     private static JSONObject mapReservationToJson(Reservation reservation) {
