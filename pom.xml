@@ -83,6 +83,13 @@
             <version>1.4.200</version>
             <scope>test</scope>
         </dependency>
+        
+        <dependency>
+            <groupId>com.konghq</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>3.4.01</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
