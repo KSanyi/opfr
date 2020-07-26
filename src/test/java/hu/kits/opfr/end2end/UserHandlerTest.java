@@ -44,7 +44,7 @@ public class UserHandlerTest {
         
         assertEquals("[]", httpResponse.getBody());
         
-        String json = TestUtil.readTestJson("create-user.json");
+        String json = TestUtil.readTestJson("post-users.json");
         httpResponse = Unirest.post(url).body(json).asString();
         
         assertEquals("", httpResponse.getBody());
@@ -62,10 +62,10 @@ public class UserHandlerTest {
         
         String url = "http://localhost:" + port + "/api/users";
         
-        String json = TestUtil.readTestJson("create-user.json");
+        String json = TestUtil.readTestJson("post-users.json");
         Unirest.post(url).body(json).asString();
         
-        json = TestUtil.readTestJson("authenticate.json");
+        json = TestUtil.readTestJson("post-authenticate.json");
         HttpResponse<String> httpResponse = Unirest.post(url + "/authenticate/ksanyi").body(json).asString();
         
         String expectedResponse = """
@@ -79,15 +79,15 @@ public class UserHandlerTest {
         
         String url = "http://localhost:" + port + "/api/users";
         
-        String json = TestUtil.readTestJson("create-user.json");
+        String json = TestUtil.readTestJson("post-users.json");
         Unirest.post(url).body(json).asString();
         
-        json = TestUtil.readTestJson("change-password.json");
+        json = TestUtil.readTestJson("post-change-password.json");
         HttpResponse<String> httpResponse = Unirest.post(url + "/change-password/ksanyi").body(json).asString();
         
         assertEquals(200, httpResponse.getStatus());
         
-        json = TestUtil.readTestJson("authenticate.json");
+        json = TestUtil.readTestJson("post-authenticate.json");
         httpResponse = Unirest.post(url + "/authenticate/ksanyi").body(json).asString();
         
         assertEquals(401, httpResponse.getStatus());
