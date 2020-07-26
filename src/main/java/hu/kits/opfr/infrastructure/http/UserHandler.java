@@ -6,9 +6,10 @@ import org.json.JSONObject;
 
 import hu.kits.opfr.domain.user.AuthenticationException;
 import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
-import hu.kits.opfr.domain.user.User;
+import hu.kits.opfr.domain.user.Requests.UserCreationRequest;
+import hu.kits.opfr.domain.user.Requests.UserDataUpdateRequest;
+import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.UserService;
-import hu.kits.opfr.infrastructure.http.jsonmapper.JsonMapper;
 import io.javalin.http.Context;
 
 class UserHandler {
@@ -22,19 +23,17 @@ class UserHandler {
     }
     
     void listAllUsers(Context context) {
-        
-        List<User> users = userService.loadAllUsers();
+        List<UserData> users = userService.loadAllUsers();
         context.json(users);
     }
     
     void authenticateUser(Context context) {
-        
         String userId = context.pathParam("userId");
         JSONObject jsonObject = new JSONObject(context.body());
         String password = jsonObject.getString("password");
         
         try {
-            User user = userService.authenticateUser(userId, password);
+            UserData user = userService.authenticateUser(userId, password);
             context.json(user);    
         } catch(AuthenticationException ex) {
             context.status(401).result("Unauthorized");
@@ -42,46 +41,36 @@ class UserHandler {
     }
     
     void saveNewUser(Context context) {
+        UserCreationRequest userCreationRequest = RequestParser.parseUserCreationRequest(context.body());
         
-        JSONObject jsonObject = new JSONObject(context.body());
-        
-        User user = JsonMapper.parseUser(jsonObject);
-        String password = jsonObject.getString("password");
-        
-        userService.saveNewUser(user, password);
+        userService.saveNewUser(userCreationRequest);
     }
     
     void updateUser(Context context) {
-        
         String userId = context.pathParam("userId");
-        JSONObject jsonObject = new JSONObject(context.body());
         
-        User user = JsonMapper.parseUser(jsonObject);
+        UserDataUpdateRequest userDataUpdateRequest = RequestParser.parseUserDataUpdateRequest(context.body());
         
-        if(!userId.equals(user.userId())) {
+        if(!userId.equals(userDataUpdateRequest.userData().userId())) {
             throw new HttpServer.BadRequestException("UserId can not be changed");
         }
         
-        userService.updateUser(userId, user);
+        userService.updateUser(userId, userDataUpdateRequest);
     }
     
     void deleteUser(Context context) {
-        
         String userId = context.pathParam("userId");
         userService.deleteUser(userId);
     }
     
     void generateNewPassword(Context context) {
         String userId = context.pathParam("userId");
-        
         userService.generateNewPassword(userId);
     }
     
     void changePassword(Context context) {
         String userId = context.pathParam("userId");
-        
-        JSONObject jsonObject = new JSONObject(context.body());
-        PasswordChangeRequest passwordChangeRequest = RequestParser.parsePasswordChangeRequest(jsonObject);
+        PasswordChangeRequest passwordChangeRequest = RequestParser.parsePasswordChangeRequest(context.body());
         
         try {
             userService.changePassword(userId, passwordChangeRequest);

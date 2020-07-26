@@ -15,7 +15,7 @@ import org.jdbi.v3.core.Jdbi;
 import hu.kits.opfr.common.Pair;
 import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.user.Role;
-import hu.kits.opfr.domain.user.User;
+import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.UserRepository;
 
 public class UserJdbcRepository implements UserRepository {
@@ -36,7 +36,7 @@ public class UserJdbcRepository implements UserRepository {
     }
     
     @Override
-    public List<User> loadAllUsers() {
+    public List<UserData> loadAllUsers() {
         String sql = String.format("SELECT * FROM %s", TABLE_USER);
         
         return jdbi.withHandle(handle -> 
@@ -45,7 +45,7 @@ public class UserJdbcRepository implements UserRepository {
     }
     
     @Override
-    public Optional<Pair<User, String>> findUserWithPasswordHash(String userId) {
+    public Optional<Pair<UserData, String>> findUserWithPasswordHash(String userId) {
         
         String sql = String.format("SELECT * FROM %s WHERE %s = :userId", TABLE_USER, COLUMN_USERID);
         
@@ -56,13 +56,13 @@ public class UserJdbcRepository implements UserRepository {
     }
     
     @Override
-    public User loadUser(String userId) {
+    public UserData loadUser(String userId) {
         return findUserWithPasswordHash(userId).map(Pair::getFirst).orElseThrow(() -> new OPFRException("Can not find user with id: '" + userId + "'"));
     }
     
-    private static User mapToUser(ResultSet rs) throws SQLException {
+    private static UserData mapToUser(ResultSet rs) throws SQLException {
         
-        return new User(
+        return new UserData(
                 rs.getString(COLUMN_USERID), 
                 rs.getString(COLUMN_NAME),
                 Role.valueOf(rs.getString(COLUMN_ROLE)), 
@@ -78,22 +78,22 @@ public class UserJdbcRepository implements UserRepository {
     }
 
     @Override
-    public void saveNewUser(User user, String passwordHash) {
+    public void saveNewUser(UserData userData, String passwordHash) {
         
-        Map<String, Object> map = createMap(user);
+        Map<String, Object> map = createMap(userData);
         map.put(COLUMN_PASSWORD_HASH, passwordHash);
         try {
             jdbi.withHandle(handle -> JdbiUtil.createInsertStatement(handle, TABLE_USER, map).execute());    
         } catch(Exception ex) {
             if(ex.getCause() instanceof SQLIntegrityConstraintViolationException) {
-                throw new OPFRException("UserId '" + user.userId() + "' already exists");
+                throw new OPFRException("UserId '" + userData.userId() + "' already exists");
             } else {
                 throw new RuntimeException(ex);
             }
         }
     }
     
-    private static Map<String, Object> createMap(User user) {
+    private static Map<String, Object> createMap(UserData user) {
         
         Map<String, Object> valuesMap = new HashMap<>();
         valuesMap.put(COLUMN_USERID, user.userId());
@@ -107,11 +107,11 @@ public class UserJdbcRepository implements UserRepository {
     }
 
     @Override
-    public void updateUser(String userId, User updatedUserData) {
+    public void updateUser(String userId, UserData updatedUserData) {
         
-        Optional<Pair<User, String>> userWithPasswordHash = findUserWithPasswordHash(userId);
+        Optional<Pair<UserData, String>> userWithPasswordHash = findUserWithPasswordHash(userId);
         if(userWithPasswordHash.isPresent()) {
-            User originalUser = userWithPasswordHash.get().getFirst();
+            UserData originalUser = userWithPasswordHash.get().getFirst();
             
             Map<String, Object> originalMap = createMap(originalUser);
             Map<String, Object> updatedMap = createMap(updatedUserData);

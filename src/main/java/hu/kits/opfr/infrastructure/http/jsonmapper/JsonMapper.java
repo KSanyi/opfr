@@ -7,16 +7,13 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.TimeRange;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.reservation.Reservation;
-import hu.kits.opfr.domain.user.Role;
-import hu.kits.opfr.domain.user.User;
-import hu.kits.opfr.infrastructure.http.HttpServer;
+import hu.kits.opfr.domain.user.UserData;
 
 public class JsonMapper {
 
@@ -37,8 +34,8 @@ public class JsonMapper {
             return new JSONObject(jsonEntriesMap);
         } else if(object instanceof TennisCourt) {
             return mapTennisCourtToJson((TennisCourt)object);    
-        } else if(object instanceof User) {
-            return mapUserToJson((User)object);    
+        } else if(object instanceof UserData) {
+            return mapUserToJson((UserData)object);    
         } else if(object instanceof TimeRange) {
             return mapTimeRangeToJson((TimeRange)object);    
         } else if(object instanceof DailyTimeRange) {
@@ -57,7 +54,7 @@ public class JsonMapper {
                 .put("name", tennisCourt.name());
     }
     
-    private static JSONObject mapUserToJson(User user) {
+    private static JSONObject mapUserToJson(UserData user) {
         
         return new JSONObject()
                 .put("userId", user.userId())
@@ -65,20 +62,6 @@ public class JsonMapper {
                 .put("email", user.email())
                 .put("phone", user.phone())
                 .put("role", user.role().name());
-    }
-    
-    public static User parseUser(JSONObject jsonObject) {
-        try {
-            return new User(
-                    jsonObject.getString("userId"),
-                    jsonObject.getString("name"),
-                    Role.valueOf(jsonObject.getString("role")),
-                    jsonObject.getString("phone"),
-                    jsonObject.getString("email"),
-                    jsonObject.getBoolean("isActive"));
-        } catch(JSONException | IllegalArgumentException ex) {
-            throw new HttpServer.BadRequestException(ex.getMessage());
-        }
     }
     
     private static JSONObject mapTimeRangeToJson(TimeRange timeRange) {

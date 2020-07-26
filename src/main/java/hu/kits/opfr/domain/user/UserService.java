@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 
 import hu.kits.opfr.common.Pair;
 import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
+import hu.kits.opfr.domain.user.Requests.UserCreationRequest;
+import hu.kits.opfr.domain.user.Requests.UserDataUpdateRequest;
 import hu.kits.opfr.domain.user.password.PasswordGenerator;
 import hu.kits.opfr.domain.user.password.PasswordHasher;
 
@@ -24,31 +26,33 @@ public class UserService {
         this.passwordHasher = passwordHasher;
     }
     
-    public List<User> loadAllUsers() {
+    public List<UserData> loadAllUsers() {
         
-        List<User> users = userRepository.loadAllUsers();
+        List<UserData> users = userRepository.loadAllUsers();
         
         logger.debug("{} users loaded", users.size());
         
         return users;
     }
     
-    public User findUser(String userId) {
+    public UserData findUser(String userId) {
         return userRepository.loadUser(userId);
     }
     
-    public void saveNewUser(User user, String password) {
+    public void saveNewUser(UserCreationRequest userCreationRequest) {
         
-        logger.info("Saving new user: {}", user);
+        logger.info("Saving new user: {}", userCreationRequest.userData());
         
-        userRepository.saveNewUser(user, password);
+        String passwordHash = passwordHasher.createNewPasswordHash(userCreationRequest.password());
+        
+        userRepository.saveNewUser(userCreationRequest.userData(), passwordHash);
     }
     
-    public void updateUser(String userId, User user) {
+    public void updateUser(String userId, UserDataUpdateRequest userDataUpdateRequest) {
         
-        logger.info("Updating user: {} with new data: {}", userId, user);
+        logger.info("Updating user: {} with new data: {}", userId, userDataUpdateRequest.userData());
         
-        userRepository.updateUser(userId, user);
+        userRepository.updateUser(userId, userDataUpdateRequest.userData());
     }
     
     public void deleteUser(String userId) {
@@ -58,14 +62,14 @@ public class UserService {
         userRepository.deleteUser(userId);
     }
 
-    public User authenticateUser(String userId, String password) throws AuthenticationException {
+    public UserData authenticateUser(String userId, String password) throws AuthenticationException {
         
         logger.debug("Authentication request for user '{}'", userId);
         
-        Optional<Pair<User, String>> userWithPasswordHash = userRepository.findUserWithPasswordHash(userId);
+        Optional<Pair<UserData, String>> userWithPasswordHash = userRepository.findUserWithPasswordHash(userId);
         if(userWithPasswordHash.isPresent()) {
             
-            User user = userWithPasswordHash.get().getFirst();
+            UserData user = userWithPasswordHash.get().getFirst();
             String passwordHash = userWithPasswordHash.get().getSecond();
             
             if(passwordHasher.checkPassword(passwordHash, password)) {

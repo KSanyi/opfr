@@ -8,12 +8,17 @@ import org.json.JSONObject;
 import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.TimeRange;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
+import hu.kits.opfr.domain.user.Role;
+import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
+import hu.kits.opfr.domain.user.Requests.UserCreationRequest;
+import hu.kits.opfr.domain.user.Requests.UserDataUpdateRequest;
 
 public class RequestParser {
 
-    public static PasswordChangeRequest parsePasswordChangeRequest(JSONObject jsonObject) {
+    public static PasswordChangeRequest parsePasswordChangeRequest(String jsonString) {
         try {
+            JSONObject jsonObject = new JSONObject(jsonString);
             return new PasswordChangeRequest(
                     jsonObject.getString("password"),
                     jsonObject.getString("newPassword"));
@@ -42,8 +47,9 @@ public class RequestParser {
         }
     }
     
-    public static ReservationRequest parseReservationRequest(JSONObject jsonObject) {
+    public static ReservationRequest parseReservationRequest(String jsonString) {
         try {
+            JSONObject jsonObject = new JSONObject(jsonString);
             return new ReservationRequest(
                     jsonObject.getString("courtId"),
                     parseDailyTimeRange(jsonObject.getJSONObject("dailyTimeRange")),
@@ -51,6 +57,37 @@ public class RequestParser {
         } catch(JSONException | IllegalArgumentException ex) {
             throw new HttpServer.BadRequestException(ex.getMessage());
         }
+    }
+    
+    public static UserCreationRequest parseUserCreationRequest(String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            return new UserCreationRequest(
+                    parseUserData(jsonObject),
+                    jsonObject.getString("password"));
+        } catch(JSONException | IllegalArgumentException ex) {
+            throw new HttpServer.BadRequestException(ex.getMessage());
+        }
+    }
+    
+    public static UserDataUpdateRequest parseUserDataUpdateRequest(String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            return new UserDataUpdateRequest(
+                    parseUserData(jsonObject));
+        } catch(JSONException | IllegalArgumentException ex) {
+            throw new HttpServer.BadRequestException(ex.getMessage());
+        }
+    }
+    
+    private static UserData parseUserData(JSONObject jsonObject) {
+        return new UserData(
+                jsonObject.getString("userId"),
+                jsonObject.getString("name"),
+                Role.valueOf(jsonObject.getString("role")),
+                jsonObject.getString("phone"),
+                jsonObject.getString("email"),
+                jsonObject.getBoolean("isActive"));
     }
     
 }

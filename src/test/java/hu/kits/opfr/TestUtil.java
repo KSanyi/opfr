@@ -6,12 +6,12 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import hu.kits.opfr.domain.user.Role;
-import hu.kits.opfr.domain.user.User;
+import hu.kits.opfr.domain.user.UserData;
 
 public class TestUtil {
 
-    public static final User TEST_MEMBER_1 = new User("T1", "Test user 1", Role.MEMBER, "+362012345678", "test1@opfr.hu", true);
-    public static final User TEST_MEMBER_2 = new User("T2", "Test user 2", Role.MEMBER, "+367012345678", "test2@opfr.hu", true);
+    public static final UserData TEST_MEMBER_1 = new UserData("T1", "Test user 1", Role.MEMBER, "+362012345678", "test1@opfr.hu", true);
+    public static final UserData TEST_MEMBER_2 = new UserData("T2", "Test user 2", Role.MEMBER, "+367012345678", "test2@opfr.hu", true);
     
     public static int findFreePort() {
         try {

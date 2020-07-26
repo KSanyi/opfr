@@ -7,18 +7,18 @@ import hu.kits.opfr.common.Pair;
 
 public interface UserRepository {
 
-    List<User> loadAllUsers();
+    List<UserData> loadAllUsers();
     
-    void saveNewUser(User user, String password);
+    void saveNewUser(UserData userData, String passwordHash);
     
-    Optional<Pair<User, String>> findUserWithPasswordHash(String userId);
+    Optional<Pair<UserData, String>> findUserWithPasswordHash(String userId);
 
     void changePassword(String userId, String newPasswordHash);
 
-    void updateUser(String userId, User user);
+    void updateUser(String userId, UserData user);
 
     void deleteUser(String userId);
 
-    User loadUser(String userId);
+    UserData loadUser(String userId);
 
 }

@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import hu.kits.opfr.common.DateRange;
-import hu.kits.opfr.domain.user.User;
+import hu.kits.opfr.domain.user.UserData;
 
 public interface ReservationRepository {
 
@@ -12,7 +12,7 @@ public interface ReservationRepository {
 
     List<Reservation> load(LocalDate date, String courtId);
 
-    List<Reservation> load(DateRange dateRange, User user);
+    List<Reservation> load(DateRange dateRange, UserData user);
 
     List<Reservation> load(DateRange dateRange);
 

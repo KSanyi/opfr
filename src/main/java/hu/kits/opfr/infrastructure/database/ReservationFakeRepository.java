@@ -9,7 +9,7 @@ import java.util.List;
 import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.domain.reservation.Reservation;
 import hu.kits.opfr.domain.reservation.ReservationRepository;
-import hu.kits.opfr.domain.user.User;
+import hu.kits.opfr.domain.user.UserData;
 
 public class ReservationFakeRepository implements ReservationRepository {
 
@@ -29,7 +29,7 @@ public class ReservationFakeRepository implements ReservationRepository {
     }
 
     @Override
-    public List<Reservation> load(DateRange dateRange, User user) {
+    public List<Reservation> load(DateRange dateRange, UserData user) {
         return reservations.stream()
                 .filter(res -> dateRange.contains(res.dailyTimeRange().date()))
                 .filter(res -> res.user().userId().equals(user.userId()))
