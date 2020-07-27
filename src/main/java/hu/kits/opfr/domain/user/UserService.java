@@ -28,7 +28,7 @@ public class UserService {
     
     public List<UserData> loadAllUsers() {
         
-        List<UserData> users = userRepository.loadAllUsers();
+        List<UserData> users = userRepository.loadAllUsers().list();
         
         logger.debug("{} users loaded", users.size());
         

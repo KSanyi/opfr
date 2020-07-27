@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toMap;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
@@ -43,7 +44,7 @@ public class ReservationService {
         
         boolean courtAvailable = isCourtAvailableAt(courtId, dailyTimeRange);
         if(courtAvailable) {
-            Reservation reservation = new Reservation(user, courtId, dailyTimeRange, Clock.now(), comment);
+            Reservation reservation = new Reservation(UUID.randomUUID().toString(), user, courtId, dailyTimeRange, Clock.now(), comment);
             reservationRepository.save(reservation);
         } else {
             throw new OPFRException("Court is not available");

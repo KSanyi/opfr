@@ -7,15 +7,16 @@ import static io.javalin.apibuilder.ApiBuilder.put;
 import static io.javalin.apibuilder.ApiBuilder.delete;
 
 import java.lang.invoke.MethodHandles;
+import java.time.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import hu.kits.opfr.application.ResourceFactory;
 import hu.kits.opfr.domain.common.OPFRException;
-import hu.kits.opfr.infrastructure.http.jsonmapper.JsonMapper;
 import io.javalin.Javalin;
 import io.javalin.core.util.RouteOverviewPlugin;
+import io.javalin.core.validation.JavalinValidation;
 import io.javalin.http.Context;
 import io.javalin.plugin.json.JavalinJson;
 import io.javalin.plugin.openapi.OpenApiOptions;
@@ -33,7 +34,7 @@ public class HttpServer {
     
     public HttpServer(int port, ResourceFactory resourceFactory) {
         
-        TennisCourtsHandler tennisCourtsHandler = new TennisCourtsHandler(resourceFactory.getTennisCourtService());
+        TennisCourtsHandler tennisCourtsHandler = new TennisCourtsHandler(resourceFactory.getTennisCourtService(), resourceFactory.getReservationService());
         ReservationHandler reservationHandler = new ReservationHandler(resourceFactory.getUserService(), resourceFactory.getReservationService());
         UserHandler usersHandler = new UserHandler(resourceFactory.getUserService());
         
@@ -55,10 +56,12 @@ public class HttpServer {
                 post("/change-password/:userId", usersHandler::changePassword);
             });
             path("api/courts", () -> {
-                get(tennisCourtsHandler::handleListCoursesRequest);
+                get(tennisCourtsHandler::listCourts);
+                get("/available", tennisCourtsHandler::listAvailableCourts);
             });
             path("api/reservations", () -> {
-                get(":userId", reservationHandler::handleListMyReservationsRequest);
+                get("/calendar", reservationHandler::createReservationsCalendar);
+                get(":userId", reservationHandler::listMyReservations);
                 post(":userId", reservationHandler::reserveCourt);
             });
         }).exception(BadRequestException.class, this::handleException)
@@ -67,6 +70,8 @@ public class HttpServer {
         this.port = port;
         
         JavalinJson.setToJsonMapper(JsonMapper::mapToJsonString);
+        
+        JavalinValidation.register(LocalDate.class, LocalDate::parse);
     }
     
     public void start() {

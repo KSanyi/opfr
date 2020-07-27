@@ -17,6 +17,7 @@ import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.user.Role;
 import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.UserRepository;
+import hu.kits.opfr.domain.user.Users;
 
 public class UserJdbcRepository implements UserRepository {
 
@@ -36,12 +37,14 @@ public class UserJdbcRepository implements UserRepository {
     }
     
     @Override
-    public List<UserData> loadAllUsers() {
+    public Users loadAllUsers() {
         String sql = String.format("SELECT * FROM %s", TABLE_USER);
         
-        return jdbi.withHandle(handle -> 
+        List<UserData> usersList = jdbi.withHandle(handle -> 
             handle.createQuery(sql)
             .map((rs, ctx) -> mapToUser(rs)).list());
+        
+        return new Users(usersList);
     }
     
     @Override

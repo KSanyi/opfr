@@ -1,4 +1,4 @@
-package hu.kits.opfr.infrastructure.http.jsonmapper;
+package hu.kits.opfr.infrastructure.http;
 
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -29,7 +29,7 @@ public class JsonMapper {
         } else if(object instanceof Map) {
             Map<?, ?> map = (Map<?, ?>)object;
             Map<?, ?> jsonEntriesMap = map.entrySet().stream().collect(toMap(
-                    e -> JsonMapper.mapToJson(e.getKey()),
+                    e -> e.getKey().toString(),
                     e -> JsonMapper.mapToJson(e.getValue())));
             return new JSONObject(jsonEntriesMap);
         } else if(object instanceof TennisCourt) {
@@ -81,6 +81,7 @@ public class JsonMapper {
     private static JSONObject mapReservationToJson(Reservation reservation) {
         
         return new JSONObject()
+                .put("id", reservation.id())
                 .put("courtId", reservation.courtId())
                 .put("user", mapUserToJson(reservation.user()))
                 .put("comment", reservation.comment())
