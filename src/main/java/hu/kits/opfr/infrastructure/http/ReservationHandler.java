@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.court.TennisCourt;
@@ -28,7 +29,7 @@ class ReservationHandler {
     void listMyReservations(Context context) {
         String userId = context.pathParam("userId");
         UserData user = userService.findUser(userId);
-        context.json(reservationService.listMyReservations(user, DateRange.of(2020)));
+        context.json(reservationService.listMyReservations(user, DateRange.of(Clock.today().getYear())));
     }
     
     void reserveCourt(Context context) {

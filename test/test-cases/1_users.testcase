@@ -1,0 +1,35 @@
+Call 1
+url: <url-base>/api/users
+method: GET
+response:
+[]
+
+Call 2
+url: <url-base>/api/users
+method: POST
+request:
+{
+    "role": "ADMIN",
+    "phone": "+36703699208",
+    "name": "Kócsó Sándor",
+    "userId": "ksanyi",
+    "isActive": true,
+    "email": "kocso.sandor.gabor@gmail.com",
+    "password": "Alma1234"
+}
+
+response:
+
+Call 3
+url: <url-base>/api/users
+method: GET
+response:
+[
+{
+    "role":"ADMIN",
+    "phone":"+36703699208",
+    "name":"Kócsó Sándor",
+    "userId":"ksanyi",
+    "email":"kocso.sandor.gabor@gmail.com"
+}
+]

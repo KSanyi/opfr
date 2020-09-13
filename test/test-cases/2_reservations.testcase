@@ -1,0 +1,111 @@
+Call 1
+# Just to have a user save in the system
+url: <url-base>/api/users
+method: POST
+request:
+{
+    "role": "ADMIN",
+    "phone": "+36703699208",
+    "name": "Kócsó Sándor",
+    "userId": "ksanyi",
+    "isActive": true,
+    "email": "kocso.sandor.gabor@gmail.com",
+    "password": "Alma1234"
+}
+
+Call 2
+url: <url-base>/api/reservations/ksanyi
+method: GET
+response:
+[]
+
+Call3
+url: <url-base>/api/reservations/ksanyi
+method: POST
+request:
+{
+    "courtId": "1",
+    "dailyTimeRange": {
+        "date": "2020-09-01",
+        "timeRange": {
+            "startAt": 10,
+            "hours": 2
+        }
+    },
+    "comment": "Having fun",
+}
+
+Call 3
+url: <url-base>/api/reservations/ksanyi
+method: GET
+response:
+[{
+  "comment": "Having fun",
+  "id": "23c69354-d9e8-4d07-9e84-000000000001",
+  "time": {
+    "date": "2020-09-01",
+    "timeRange": {
+      "hours": 2,
+      "startAt": 10
+    }
+  },
+  "user": {
+    "role": "ADMIN",
+    "phone": "+36703699208",
+    "name": "Kócsó Sándor",
+    "userId": "ksanyi",
+    "email": "kocso.sandor.gabor@gmail.com"
+  },
+  "courtId": "1",
+  "timestamp": "2020-09-01T08:00"
+}]
+
+Call 4
+url: <url-base>/api/reservations/calendar?from=2020-08-30&to=2020-09-02
+method: GET
+response:
+{
+  "1": {
+    "2020-08-30": [],
+    "2020-08-31": [],
+    "2020-09-01": [{
+      "comment": "Having fun",
+      "id": "23c69354-d9e8-4d07-9e84-000000000001",
+      "time": {
+        "date": "2020-09-01",
+        "timeRange": {
+          "hours": 2,
+          "startAt": 10
+        }
+      },
+      "user": {
+        "role": "ADMIN",
+        "phone": "+36703699208",
+        "name": "Kócsó Sándor",
+        "userId": "ksanyi",
+        "email": "kocso.sandor.gabor@gmail.com"
+      },
+      "courtId": "1",
+      "timestamp": "2020-09-01T08:00"
+    }],
+    "2020-09-02": []
+  },
+  "2": {
+    "2020-08-30": [],
+    "2020-08-31": [],
+    "2020-09-01": [],
+    "2020-09-02": []
+  },
+  "3": {
+    "2020-08-30": [],
+    "2020-08-31": [],
+    "2020-09-01": [],
+    "2020-09-02": []
+  },
+  "4": {
+    "2020-08-30": [],
+    "2020-08-31": [],
+    "2020-09-01": [],
+    "2020-09-02": []
+  }
+}

@@ -54,7 +54,7 @@ public class ReservationJdbcRepository implements ReservationRepository {
         valuesMap.put(COLUMN_START_AT, reservation.dailyTimeRange().timeRange().startAt());
         valuesMap.put(COLUMN_HOURS, reservation.dailyTimeRange().timeRange().hours());
         valuesMap.put(COLUMN_COMMENT, reservation.comment());
-        
+        valuesMap.put(COLUMN_TIMESTAMP, reservation.timeStamp());
         return valuesMap;
     }
 

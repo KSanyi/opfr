@@ -6,10 +6,11 @@ import static java.util.stream.Collectors.toMap;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.TreeMap;
 
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
+import hu.kits.opfr.common.IdGenerator;
 import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.court.TennisCourt;
@@ -44,7 +45,7 @@ public class ReservationService {
         
         boolean courtAvailable = isCourtAvailableAt(courtId, dailyTimeRange);
         if(courtAvailable) {
-            Reservation reservation = new Reservation(UUID.randomUUID().toString(), user, courtId, dailyTimeRange, Clock.now(), comment);
+            Reservation reservation = new Reservation(IdGenerator.generateId(), user, courtId, dailyTimeRange, Clock.now(), comment);
             reservationRepository.save(reservation);
         } else {
             throw new OPFRException("Court is not available");
@@ -83,7 +84,9 @@ public class ReservationService {
         
         return dateRange.days().collect(toMap(
                 day -> day, 
-                day -> reservationsForDay(day, reservationsForThisCourt)));
+                day -> reservationsForDay(day, reservationsForThisCourt),
+                (a, b) -> a,
+                TreeMap::new));
     }
     
     private static List<Reservation> reservationsForDay(LocalDate day, List<Reservation> reservations) {
