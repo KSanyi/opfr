@@ -1,4 +1,4 @@
-package hu.kits.opfr.end2end.testframework;
+package hu.kits.opfr.common;
 
 import static java.util.stream.Collectors.toList;
 
@@ -8,11 +8,11 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-import kong.unirest.HttpMethod;
+import org.eclipse.jetty.http.HttpMethod;
 
-public class UseCaseParser {
+public class UseCaseFileParser {
 
-    public static List<TestCall> parseUseCaseFile(File useCaseFile) throws IOException {
+    public static List<TestCall> parseUseCaseFile(File useCaseFile, boolean withComments) throws IOException {
         
         List<String> lines = Files.readAllLines(useCaseFile.toPath());
         List<List<String>> linesForCallList = new ArrayList<>();
@@ -27,31 +27,30 @@ public class UseCaseParser {
         linesForCallList.add(linesForCall);
         
         return linesForCallList.stream()
-            .filter(ucLines -> !ucLines.isEmpty())
-            .map(UseCaseParser::parseCall)
+            .filter(l -> !l.isEmpty())
+            .map(l -> parseCall(l, withComments))
             .collect(toList());
-        
     }
     
-    private static TestCall parseCall(List<String> lines) {
+    private static TestCall parseCall(List<String> callLines, boolean withComments) {
         
         String requestJson = ""; 
         String responseJson = "";
         
-        List<String> nonCommentLines = lines.stream()
+        List<String> lines = callLines.stream()
                 .filter(line -> !line.startsWith("#"))
                 .filter(line -> !line.isBlank())
                 .collect(toList());
         
-        String name = nonCommentLines.get(0);
-        String urlTemplate = readValue(nonCommentLines.get(1));
-        HttpMethod httpMethod = HttpMethod.valueOf(readValue(nonCommentLines.get(2)));
+        String name = lines.get(0);
+        String urlTemplate = readValue(lines.get(1));
+        HttpMethod httpMethod = HttpMethod.valueOf(readValue(lines.get(2)));
         
         int index = 3;
-        if(nonCommentLines.get(index).startsWith("request")) {
+        if(lines.get(index).startsWith("request")) {
             List<String> jsonLines = new ArrayList<>();
-            for(index=index+1;index<nonCommentLines.size();index++) {
-                String line = nonCommentLines.get(index);
+            for(index=index+1;index<lines.size();index++) {
+                String line = lines.get(index);
                 if(line.startsWith("response")) {
                     break;
                 } else {
@@ -61,10 +60,10 @@ public class UseCaseParser {
             requestJson = String.join("\n", jsonLines);
         }
         
-        if(nonCommentLines.size() > index && nonCommentLines.get(index).startsWith("response")) {
+        if(lines.size() > index && lines.get(index).startsWith("response")) {
             List<String> jsonLines = new ArrayList<>();
-            for(index=index+1;index<nonCommentLines.size();index++) {
-                String line = nonCommentLines.get(index);
+            for(index=index+1;index<lines.size();index++) {
+                String line = lines.get(index);
                 jsonLines.add(line);    
             }
             responseJson = String.join("\n", jsonLines);

@@ -1,10 +1,10 @@
 package hu.kits.opfr.infrastructure.http;
 
-import static io.javalin.apibuilder.ApiBuilder.get;
-import static io.javalin.apibuilder.ApiBuilder.post;
-import static io.javalin.apibuilder.ApiBuilder.path;
-import static io.javalin.apibuilder.ApiBuilder.put;
 import static io.javalin.apibuilder.ApiBuilder.delete;
+import static io.javalin.apibuilder.ApiBuilder.get;
+import static io.javalin.apibuilder.ApiBuilder.path;
+import static io.javalin.apibuilder.ApiBuilder.post;
+import static io.javalin.apibuilder.ApiBuilder.put;
 
 import java.lang.invoke.MethodHandles;
 import java.time.LocalDate;
@@ -37,6 +37,7 @@ public class HttpServer {
         TennisCourtsHandler tennisCourtsHandler = new TennisCourtsHandler(resourceFactory.getTennisCourtService(), resourceFactory.getReservationService());
         ReservationHandler reservationHandler = new ReservationHandler(resourceFactory.getUserService(), resourceFactory.getReservationService());
         UserHandler usersHandler = new UserHandler(resourceFactory.getUserService());
+        ApiDocHandler apiDocHandler = new ApiDocHandler();
         
         app = Javalin.create(config -> {
             config.registerPlugin(new RouteOverviewPlugin("")); 
@@ -46,6 +47,10 @@ public class HttpServer {
             config.enableCorsForAllOrigins();
             config.requestLogger(this::log);
         }).routes(() -> {
+            path("api/docs", () -> {
+                get(apiDocHandler::createTestCasesList);
+                get(":testCase", apiDocHandler::createTestCaseDoc);
+            });
             path("api/users", () -> {
                 get(usersHandler::listAllUsers);
                 post(usersHandler::saveNewUser);

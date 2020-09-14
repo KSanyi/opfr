@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+  pre code {
+      background-color: #eee;
+      border: 1px solid #999;
+      display: block;
+      padding: 20px;
+  }
+  </style>
+</head>
+<body>
+
+<h1>Api doc for test case <b>{{testCase}}</b></h1>
+<p>
+    {{#useCaseCalls}}
+        -------------------------- {{name}} --------------------------<br/><br/>
+        url: {{urlTemplate}}<br/>
+        method: <b>{{httpMethod}}</b><br/>
+        request: <pre><code>{{requestJson}}</code></pre><br/>
+        response: <pre><code>{{responseJson}}</code></pre><br/>
+        <br/>
+    {{/useCaseCalls}}
+</p>
+
+</body>
+</html>

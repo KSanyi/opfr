@@ -8,6 +8,7 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
+import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -21,11 +22,10 @@ import hu.kits.opfr.TestUtil;
 import hu.kits.opfr.application.ResourceFactory;
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.IdGenerator;
-import hu.kits.opfr.end2end.testframework.UseCaseParser;
-import hu.kits.opfr.end2end.testframework.UseCaseParser.TestCall;
+import hu.kits.opfr.common.UseCaseFileParser;
+import hu.kits.opfr.common.UseCaseFileParser.TestCall;
 import hu.kits.opfr.end2end.testframework.TestCaseDirSource;
 import hu.kits.opfr.infrastructure.http.HttpServer;
-import kong.unirest.HttpMethod;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 
@@ -61,7 +61,7 @@ public class TestCaseExecutor {
         
         logger.info("Executing test case: {}", testCaseFile.getName());
         
-        List<TestCall> testCalls = UseCaseParser.parseUseCaseFile(testCaseFile);
+        List<TestCall> testCalls = UseCaseFileParser.parseUseCaseFile(testCaseFile, false);
         
         for(TestCall testCall : testCalls) {
             
