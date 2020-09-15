@@ -25,7 +25,7 @@ method: POST
 request:
 {
     "courtId": "1",
-    "dailyTimeRange": {
+    "time": {
         "date": "2020-09-01",
         "timeRange": {
             "startAt": 10,
@@ -109,3 +109,22 @@ response:
     "2020-09-02": []
   }
 }
+
+Call 5
+url: <url-base>/api/courts/available?date=2020-09-01&startAt=10&hours=1
+method: GET
+response:
+[
+  {
+    "name": "Hátsó bal oldali pálya",
+    "id": "2"
+  },
+  {
+    "name": "Hátsó jobb oldali pálya",
+    "id": "3"
+  },
+  {
+    "name": "Kis pálya",
+    "id": "4"
+  }
+]

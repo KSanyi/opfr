@@ -52,7 +52,7 @@ public class RequestParser {
             JSONObject jsonObject = new JSONObject(jsonString);
             return new ReservationRequest(
                     jsonObject.getString("courtId"),
-                    parseDailyTimeRange(jsonObject.getJSONObject("dailyTimeRange")),
+                    parseDailyTimeRange(jsonObject.getJSONObject("time")),
                     jsonObject.getString("comment"));
         } catch(JSONException | IllegalArgumentException ex) {
             throw new HttpServer.BadRequestException(ex.getMessage());

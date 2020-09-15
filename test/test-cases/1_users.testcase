@@ -18,8 +18,6 @@ request:
     "password": "Alma1234"
 }
 
-response:
-
 Call 3
 url: <url-base>/api/users
 method: GET
@@ -33,3 +31,44 @@ response:
     "email":"kocso.sandor.gabor@gmail.com"
 }
 ]
+
+Call 4
+url: <url-base>/api/users/authenticate/ksanyi
+method: POST
+request:
+{
+    "password": "Alma1234"
+}
+response:
+{
+    "role":"ADMIN",
+    "phone":"+36703699208",
+    "name":"Kócsó Sándor",
+    "userId":"ksanyi",
+    "email":"kocso.sandor.gabor@gmail.com"
+}
+
+Call 5
+url: <url-base>/api/users/change-password/ksanyi
+method: POST
+request:
+{
+    "password": "Alma1234",
+    "newPassword": "Korte1234"
+}
+
+Call 6
+url: <url-base>/api/users/authenticate/ksanyi
+method: POST
+request:
+{
+    "password": "Korte1234"
+}
+response:
+{
+    "role":"ADMIN",
+    "phone":"+36703699208",
+    "name":"Kócsó Sándor",
+    "userId":"ksanyi",
+    "email":"kocso.sandor.gabor@gmail.com"
+}

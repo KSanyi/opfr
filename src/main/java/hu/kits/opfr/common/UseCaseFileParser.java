@@ -76,6 +76,12 @@ public class UseCaseFileParser {
         return line.substring(line.indexOf(":") + 1).trim();
     }
     
-    public static record TestCall(String name, String urlTemplate, HttpMethod httpMethod, String requestJson, String responseJson) {}
+    public static record TestCall(String name, String urlTemplate, HttpMethod httpMethod, String requestJson, String responseJson) {
+        
+        public String path() {
+            return urlTemplate.replace("<url-base>", "");
+        }
+        
+    }
     
 }
