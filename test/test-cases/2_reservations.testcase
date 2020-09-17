@@ -1,5 +1,5 @@
 Call 1
-# Just to have a user save in the system
+description: Just to have a user save in the system
 url: <url-base>/api/users
 method: POST
 request:
@@ -12,11 +12,14 @@ request:
     "email": "kocso.sandor.gabor@gmail.com",
     "password": "Alma1234"
 }
+response-status: 200
 
 Call 2
+description:
 url: <url-base>/api/reservations/ksanyi
 method: GET
-response:
+response-status: 200
+response-body:
 []
 
 Call3
@@ -34,11 +37,14 @@ request:
     },
     "comment": "Having fun",
 }
+response-status: 200
 
 Call 3
+description:
 url: <url-base>/api/reservations/ksanyi
 method: GET
-response:
+response-status: 200
+response-body:
 [{
   "comment": "Having fun",
   "id": "23c69354-d9e8-4d07-9e84-000000000001",
@@ -61,9 +67,11 @@ response:
 }]
 
 Call 4
+description:
 url: <url-base>/api/reservations/calendar?from=2020-08-30&to=2020-09-02
 method: GET
-response:
+response-status: 200
+response-body:
 {
   "1": {
     "2020-08-30": [],
@@ -111,9 +119,11 @@ response:
 }
 
 Call 5
+description:
 url: <url-base>/api/courts/available?date=2020-09-01&startAt=10&hours=1
 method: GET
-response:
+response-status: 200
+response-body:
 [
   {
     "name": "Hátsó bal oldali pálya",

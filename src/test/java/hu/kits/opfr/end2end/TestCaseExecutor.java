@@ -1,5 +1,8 @@
 package hu.kits.opfr.end2end;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
@@ -12,7 +15,6 @@ import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.slf4j.Logger;
@@ -77,15 +79,17 @@ public class TestCaseExecutor {
                 logger.info("Calling POST {}", url);
             }
             
-            logger.info("Response status: {}", httpResponse.getStatusText());
+            logger.info("Response status: {} {}", httpResponse.getStatus(), httpResponse.getStatusText());
+            
+            assertEquals(testCall.responseStatus(), httpResponse.getStatus());
             
             if(!testCall.responseJson().isBlank()) {
-                Assertions.assertEquals(normalize(testCall.responseJson()), normalize(httpResponse.getBody()));
+                assertEquals(normalize(testCall.responseJson()), normalize(httpResponse.getBody()));
             }
             
             logger.info("Response: {}", httpResponse.getBody());
             
-            Assertions.assertTrue(httpResponse.isSuccess());
+            assertTrue(httpResponse.isSuccess());
         }
     }
     

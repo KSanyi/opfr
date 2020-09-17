@@ -1,5 +1,6 @@
 package hu.kits.opfr.common;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 
 import java.io.File;
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.eclipse.jetty.http.HttpMethod;
 
@@ -34,49 +36,71 @@ public class UseCaseFileParser {
     
     private static TestCall parseCall(List<String> callLines, boolean withComments) {
         
-        String requestJson = ""; 
-        String responseJson = "";
-        
         List<String> lines = callLines.stream()
-                .filter(line -> !line.startsWith("#"))
+                .filter(line -> withComments || !line.startsWith("#"))
                 .filter(line -> !line.isBlank())
                 .collect(toList());
         
+        List<String> descriptionLines = findSectionLines(lines, "description");
+        List<String> urlLines = findSectionLines(lines, "url");
+        List<String> methodLines = findSectionLines(lines, "method");
+        List<String> requestLines = findSectionLines(lines, "request");
+        List<String> responseStatusLines = findSectionLines(lines, "response-status");
+        List<String> responseBodyLines = findSectionLines(lines, "response-body");
+        
         String name = lines.get(0);
-        String urlTemplate = readValue(lines.get(1));
-        HttpMethod httpMethod = HttpMethod.valueOf(readValue(lines.get(2)));
+        String description = readValue(String.join("\n", descriptionLines));
+        String urlTemplate = readValue(readValue(urlLines.get(0)));
+        HttpMethod httpMethod = HttpMethod.valueOf(readValue(methodLines.get(0)));
         
-        int index = 3;
-        if(lines.get(index).startsWith("request")) {
-            List<String> jsonLines = new ArrayList<>();
-            for(index=index+1;index<lines.size();index++) {
-                String line = lines.get(index);
-                if(line.startsWith("response")) {
-                    break;
-                } else {
-                    jsonLines.add(line);    
-                }
-            }
-            requestJson = String.join("\n", jsonLines);
-        }
+        String requestJson = readJson(requestLines);
+        int responseStatusCode = Integer.parseInt(readValue(responseStatusLines.get(0)));
+        String responseJson = readJson(responseBodyLines);
         
-        if(lines.size() > index && lines.get(index).startsWith("response")) {
-            List<String> jsonLines = new ArrayList<>();
-            for(index=index+1;index<lines.size();index++) {
-                String line = lines.get(index);
-                jsonLines.add(line);    
-            }
-            responseJson = String.join("\n", jsonLines);
-        }
-        
-        return new TestCall(name, urlTemplate, httpMethod, requestJson, responseJson);
+        return new TestCall(name, description, urlTemplate, httpMethod, requestJson, responseStatusCode, responseJson);
+    }
+    
+    private static String readJson(List<String> lines) {
+        return lines.isEmpty() ? "" : lines.stream().skip(1).collect(joining("\n"));
     }
     
     private static String readValue(String line) {
         return line.substring(line.indexOf(":") + 1).trim();
     }
     
-    public static record TestCall(String name, String urlTemplate, HttpMethod httpMethod, String requestJson, String responseJson) {
+    private static List<String> findSectionLines(List<String> allLines, String section) {
+        
+        Optional<Integer> startIndex = findStartIndex(allLines, section);
+        if(startIndex.isPresent()) {
+            int start = startIndex.get();
+            int end = findEndIndex(allLines, start);
+            return allLines.subList(start, end);
+        } else {
+            return List.of();
+        }
+    }
+    
+    private static Optional<Integer> findStartIndex(List<String> allLines, String section) {
+        for(int i=0;i<allLines.size();i++) {
+            String line = allLines.get(i);
+            if(line.startsWith(section + ":")) {
+                return Optional.of(i);
+            }
+        }
+        return Optional.empty();
+    }
+    
+    private static Integer findEndIndex(List<String> allLines, int startIndex) {
+        for(int i=startIndex+1;i<allLines.size();i++) {
+            String line = allLines.get(i);
+            if(StringUtil.startsWith(line, "\\w.*:")) {
+                return i;
+            }
+        }
+        return allLines.size();
+    }
+    
+    public static record TestCall(String name, String description, String urlTemplate, HttpMethod httpMethod, String requestJson, int responseStatus, String responseJson) {
         
         public String path() {
             return urlTemplate.replace("<url-base>", "");

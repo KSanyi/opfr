@@ -25,6 +25,10 @@ public class StringUtil {
         return Character.toUpperCase(string.charAt(0)) + string.substring(1, string.length());
     }
     
+    public static boolean startsWith(String text, String regex) {
+        return text.matches("^" + regex + ".*");
+    }
+    
     public static final RuleBasedCollator HUN_COLLATOR;
     
     static {

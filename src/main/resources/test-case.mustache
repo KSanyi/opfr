@@ -16,12 +16,15 @@
 <h1>Api doc for test case <b>{{testCase}}</b></h1>
 <p>
     {{#useCaseCalls}}
-        -------------------------- {{name}} --------------------------<br/><br/>
+        <h3> {{name}} </h3>
+        description: {{description}}<br/>
         url: {{path}}<br/>
         method: <b>{{httpMethod}}</b><br/>
-        request: <pre><code>{{requestJson}}</code></pre><br/>
-        response: <pre><code>{{responseJson}}</code></pre><br/>
+        request: {{^requestJson.isEmpty}}<pre><code>{{requestJson}}</code></pre>{{/requestJson.isEmpty}}<br/>
+        response status: {{responseStatus}}<br/>
+        response body: <pre><code>{{responseJson}}</code></pre><br/>
         <br/>
+        <hr/>
     {{/useCaseCalls}}
 </p>
 

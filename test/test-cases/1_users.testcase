@@ -1,7 +1,9 @@
 Call 1
+description:
 url: <url-base>/api/users
 method: GET
-response:
+response-status: 200
+response-body:
 []
 
 Call 2
@@ -17,11 +19,14 @@ request:
     "email": "kocso.sandor.gabor@gmail.com",
     "password": "Alma1234"
 }
+response-status: 200
 
 Call 3
+description:
 url: <url-base>/api/users
 method: GET
-response:
+response-status: 200
+response-body:
 [
 {
     "role":"ADMIN",
@@ -33,13 +38,15 @@ response:
 ]
 
 Call 4
+description:
 url: <url-base>/api/users/authenticate/ksanyi
 method: POST
 request:
 {
     "password": "Alma1234"
 }
-response:
+response-status: 200
+response-body:
 {
     "role":"ADMIN",
     "phone":"+36703699208",
@@ -49,6 +56,7 @@ response:
 }
 
 Call 5
+description:
 url: <url-base>/api/users/change-password/ksanyi
 method: POST
 request:
@@ -56,14 +64,17 @@ request:
     "password": "Alma1234",
     "newPassword": "Korte1234"
 }
+response-status: 200
 
 Call 6
+description:
 url: <url-base>/api/users/authenticate/ksanyi
 method: POST
 request:
 {
     "password": "Korte1234"
 }
+response-status: 200
 response:
 {
     "role":"ADMIN",
