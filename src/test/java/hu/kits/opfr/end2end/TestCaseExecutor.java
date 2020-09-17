@@ -1,7 +1,6 @@
 package hu.kits.opfr.end2end;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,8 +87,6 @@ public class TestCaseExecutor {
             }
             
             logger.info("Response: {}", httpResponse.getBody());
-            
-            assertTrue(httpResponse.isSuccess());
         }
     }
     

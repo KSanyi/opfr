@@ -1,5 +1,5 @@
 Call 1
-description:
+description: Lists the users in the system
 url: <url-base>/api/users
 method: GET
 response-status: 200
@@ -7,6 +7,7 @@ response-body:
 []
 
 Call 2
+description: Creates a new user
 url: <url-base>/api/users
 method: POST
 request:
@@ -22,7 +23,7 @@ request:
 response-status: 200
 
 Call 3
-description:
+description: Lists the users in the system
 url: <url-base>/api/users
 method: GET
 response-status: 200
@@ -38,7 +39,7 @@ response-body:
 ]
 
 Call 4
-description:
+description: Authenticates the created user
 url: <url-base>/api/users/authenticate/ksanyi
 method: POST
 request:
@@ -56,7 +57,7 @@ response-body:
 }
 
 Call 5
-description:
+description: Changes the password of the created user
 url: <url-base>/api/users/change-password/ksanyi
 method: POST
 request:
@@ -67,7 +68,17 @@ request:
 response-status: 200
 
 Call 6
-description:
+description: Tries to authenticate with the old password
+url: <url-base>/api/users/authenticate/ksanyi
+method: POST
+request:
+{
+    "password": "Alma1234"
+}
+response-status: 401
+
+Call 7
+description: Authenticates with the new password
 url: <url-base>/api/users/authenticate/ksanyi
 method: POST
 request:

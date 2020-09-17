@@ -1,5 +1,5 @@
 Call 1
-description: Just to have a user saved in the system
+description: Creates a new user
 url: <url-base>/api/users
 method: POST
 request:
@@ -15,14 +15,40 @@ request:
 response-status: 200
 
 Call 2
-description:
+description: Lists the reservations for a user
 url: <url-base>/api/reservations/ksanyi
 method: GET
 response-status: 200
 response-body:
 []
 
-Call3
+Call 3
+description: Check available courts for a time slot
+url: <url-base>/api/courts/available?date=2020-09-01&startAt=10&hours=1
+method: GET
+response-status: 200
+response-body:
+[
+  {
+    "name": "Fő pálya",
+    "id": "1"
+  },
+  {
+    "name": "Hátsó bal oldali pálya",
+    "id": "2"
+  },
+  {
+    "name": "Hátsó jobb oldali pálya",
+    "id": "3"
+  },
+  {
+    "name": "Kis pálya",
+    "id": "4"
+  }
+]
+
+Call 4
+description: Create a reservation for a user
 url: <url-base>/api/reservations/ksanyi
 method: POST
 request:
@@ -39,8 +65,8 @@ request:
 }
 response-status: 200
 
-Call 3
-description:
+Call 5
+description: Lists the reservations for a user
 url: <url-base>/api/reservations/ksanyi
 method: GET
 response-status: 200
@@ -66,8 +92,8 @@ response-body:
   "timestamp": "2020-09-01T08:00"
 }]
 
-Call 4
-description:
+Call 6
+description: Lists the reservations in the system in a calendar like view
 url: <url-base>/api/reservations/calendar?from=2020-08-30&to=2020-09-02
 method: GET
 response-status: 200
@@ -118,8 +144,8 @@ response-body:
   }
 }
 
-Call 5
-description:
+Call 7
+description: Check available courts for a time slot
 url: <url-base>/api/courts/available?date=2020-09-01&startAt=10&hours=1
 method: GET
 response-status: 200
