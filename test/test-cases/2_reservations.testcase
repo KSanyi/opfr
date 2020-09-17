@@ -1,5 +1,5 @@
 Call 1
-description: Just to have a user save in the system
+description: Just to have a user saved in the system
 url: <url-base>/api/users
 method: POST
 request:

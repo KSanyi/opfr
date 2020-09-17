@@ -1,11 +1,14 @@
 package hu.kits.opfr.infrastructure.http;
 
+import static java.util.stream.Collectors.toList;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import hu.kits.opfr.common.StringUtil;
@@ -18,7 +21,8 @@ class ApiDocHandler {
     void createTestCasesList(Context context) {
         
         File testCasesDir = Paths.get("test/test-cases").toFile();
-        context.render("test-case-list.mustache", Map.of("testCases", testCasesDir.list()));
+        List<String> testCases = Stream.of(testCasesDir.list()).sorted().collect(toList());
+        context.render("test-case-list.mustache", Map.of("testCases", testCases));
     }
     
     void createTestCaseDoc(Context context) {
