@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -30,7 +31,8 @@ public class JsonMapper {
             Map<?, ?> map = (Map<?, ?>)object;
             Map<?, ?> jsonEntriesMap = map.entrySet().stream().collect(toMap(
                     e -> e.getKey().toString(),
-                    e -> JsonMapper.mapToJson(e.getValue())));
+                    e -> JsonMapper.mapToJson(e.getValue()),
+                    (a, b) -> a, LinkedHashMap::new));
             return new JSONObject(jsonEntriesMap);
         } else if(object instanceof TennisCourt) {
             return mapTennisCourtToJson((TennisCourt)object);    

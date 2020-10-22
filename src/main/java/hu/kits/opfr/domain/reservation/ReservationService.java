@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
@@ -57,15 +58,15 @@ public class ReservationService {
         return reservationRepository.load(dateRange, user);
     }
     
-    public Map<TennisCourt, Map<LocalDate, List<Reservation>>> listCourtAvailability(DateRange dateRange) {
-        
-        List<TennisCourt> tennisCourts = tennisCourtRepository.listAll();
+    public Map<LocalDate, Map<String, List<Reservation>>> listCourtAvailability(DateRange dateRange) {
         
         List<Reservation> reservations = reservationRepository.load(dateRange);
         
-        return tennisCourts.stream().collect(toMap(
-                court -> court, 
-                court -> createCourtAvailability(dateRange, court, reservations)));
+        return dateRange.days().collect(toMap(
+                date -> date,
+                date -> createReservationsByCourt(date, reservations),
+                (t1, t2) -> t2,
+                TreeMap::new));
     }
     
     private boolean isCourtAvailableAt(String courtId, DailyTimeRange dailyTimeRange) {
@@ -76,23 +77,11 @@ public class ReservationService {
                 .anyMatch(dailyTimeRange::intersectWith);
     }
     
-    private static Map<LocalDate, List<Reservation>> createCourtAvailability(DateRange dateRange, TennisCourt court, List<Reservation> reservations) {
-        
-        var reservationsForThisCourt = reservations.stream()
-                .filter(res -> res.courtId().equals(court.id()))
-                .collect(toList());
-        
-        return dateRange.days().collect(toMap(
-                day -> day, 
-                day -> reservationsForDay(day, reservationsForThisCourt),
-                (a, b) -> a,
-                TreeMap::new));
-    }
-    
-    private static List<Reservation> reservationsForDay(LocalDate day, List<Reservation> reservations) {
+    private static Map<String, List<Reservation>> createReservationsByCourt(LocalDate date, List<Reservation> reservations) {
         
         return reservations.stream()
-                .filter(res -> res.dailyTimeRange().date().equals(day))
-                .collect(toList());
+                .filter(res -> res.dailyTimeRange().date().equals(date))
+                .collect(Collectors.groupingBy(Reservation::courtId, TreeMap::new, toList()));
     }
+    
 }
