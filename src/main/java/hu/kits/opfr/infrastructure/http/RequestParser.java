@@ -89,5 +89,10 @@ public class RequestParser {
                 jsonObject.getString("email"),
                 jsonObject.getBoolean("isActive"));
     }
+
+    public static String parsePassword(String jsonString) {
+        JSONObject jsonObject = new JSONObject(jsonString);
+        return jsonObject.getString("password");
+    }
     
 }

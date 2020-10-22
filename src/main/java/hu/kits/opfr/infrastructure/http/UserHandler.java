@@ -2,8 +2,6 @@ package hu.kits.opfr.infrastructure.http;
 
 import java.util.List;
 
-import org.json.JSONObject;
-
 import hu.kits.opfr.domain.user.AuthenticationException;
 import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
 import hu.kits.opfr.domain.user.Requests.UserCreationRequest;
@@ -29,8 +27,8 @@ class UserHandler {
     
     void authenticateUser(Context context) {
         String userId = context.pathParam("userId");
-        JSONObject jsonObject = new JSONObject(context.body());
-        String password = jsonObject.getString("password");
+        
+        String password = RequestParser.parsePassword(context.body());
         
         try {
             UserData user = userService.authenticateUser(userId, password);
