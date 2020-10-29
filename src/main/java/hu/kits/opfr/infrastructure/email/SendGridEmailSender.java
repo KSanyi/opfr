@@ -26,7 +26,7 @@ public class SendGridEmailSender implements EmailSender {
 
     private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     
-    private static final String SENDER = "noreply@pbtfencing.hu";
+    private static final String SENDER = "noreply@opfr.hu";
     
     private final Environment environment;
     
