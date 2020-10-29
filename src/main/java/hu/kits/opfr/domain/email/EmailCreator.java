@@ -12,16 +12,16 @@ public class EmailCreator {
         UserData user = reservation.user();
         
         String content = String.format("""
-                Kedves %s,
-                
-                Tenisz pálya foglalása megerősítve.
-                Foglalás azonosító: %s
-                Pálya: %s
-                Időpont: %s
-                Megjegyzés: %s
-                
-                Üdvözlettel,
-                
+                Kedves %s,<br/>
+                <br/>
+                Tenisz pálya foglalása megerősítve.<br/>
+                Foglalás azonosító: %s<br/>
+                Pálya: %s<br/>
+                Időpont: %s<br/>
+                Megjegyzés: %s<br/>
+                <br/>
+                Üdvözlettel,<br/>
+                <br/>
                 KVTK  
                 """, user.name(), reservation.id(), reservation.courtId(), reservation.dailyTimeRange().format(), reservation.comment());
         
