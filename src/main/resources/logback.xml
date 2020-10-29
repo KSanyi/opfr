@@ -8,7 +8,7 @@
 		</encoder>
 	</appender>
 
-    <!--  <logger name="hu.bankmonitor" level="DEBUG" />-->
+    <logger name="hu.kits.opfr" level="DEBUG" />
     
     <!--  logger name="org.eclipse.jetty" level="DEBUG" /-->
 

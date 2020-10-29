@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
-import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -47,7 +46,6 @@ public class TestCaseExecutor {
         httpServer = new HttpServer(port, resourceFactory);
         httpServer.start();
         
-        Clock.setStaticTime(LocalDateTime.of(2020,9,1, 8,0));
         IdGenerator.useFakeGenerator();
     }
     
@@ -67,6 +65,10 @@ public class TestCaseExecutor {
         for(TestCall testCall : testCalls) {
             
             logger.info("-------------------------- {} --------------------------", testCall.name());
+            
+            if(testCall.staticTime() != null) {
+                Clock.setStaticTime(testCall.staticTime());
+            }
             
             String url = testCall.urlTemplate().replaceAll("<url-base>", "http://localhost:" + port);
             HttpResponse<String> httpResponse;

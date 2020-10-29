@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
+import hu.kits.opfr.common.DateTimeRange;
 import hu.kits.opfr.common.IdGenerator;
 import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
@@ -43,10 +45,28 @@ public class ReservationService {
                 .collect(toList());
     }
     
+    public DateTimeRange getAllowedReservationRange() {
+        LocalDateTime now = Clock.now();
+        LocalDateTime from = now.withMinute(0).withSecond(0).plusHours(1);
+        LocalDateTime to = now.plusDays(6).withMinute(0).withSecond(0).withHour(23);
+        
+        Optional<LocalTime> todaysReservationOpenTime = reservationSettingsRepository.getReservationOpenTimeFor(now.toLocalDate());
+        if(todaysReservationOpenTime.isPresent() && now.toLocalTime().isAfter(todaysReservationOpenTime.get())) {
+            to = to.plusDays(1);
+        }
+        
+        return DateTimeRange.of(from, to);
+    }
+    
     public void reserveCourt(UserData user, ReservationRequest reservationRequest) throws OPFRException {
         
         String courtId = reservationRequest.courtId();
         DailyTimeRange dailyTimeRange = reservationRequest.dailyTimeRange();
+        
+        if(!isReservationAllowedFor(dailyTimeRange)) {
+            throw new OPFRException("Reservation is not allowed for " + dailyTimeRange.date());
+        }
+        
         String comment = reservationRequest.comment();
         
         boolean courtAvailable = isCourtAvailableAt(courtId, dailyTimeRange);
@@ -58,6 +78,11 @@ public class ReservationService {
         }
     }
     
+    private boolean isReservationAllowedFor(DailyTimeRange dailyTimeRange) {
+        var allowedReservationRange = getAllowedReservationRange();
+        return allowedReservationRange.contains(dailyTimeRange);
+    }
+
     public List<Reservation> listMyReservations(UserData user, DateRange dateRange) {
         
         return reservationRepository.load(dateRange, user);

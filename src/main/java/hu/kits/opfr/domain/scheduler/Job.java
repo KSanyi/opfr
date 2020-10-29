@@ -38,12 +38,12 @@ public abstract class Job {
     
     private static String runTask(Task task) {
         try {
-            log.info("Running task {}", task.name());
+            log.info("Running task '{}'", task.name());
             String result = task.run();
             log.info("Task executed successfully with result: {}", result);
             return result;
         } catch (Exception ex) {
-            log.error("Error running task {}", task.name(), ex);
+            log.error("Error running task '{}'", task.name(), ex);
             return ex.getMessage();
         }
     }

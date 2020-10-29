@@ -65,6 +65,7 @@ public class HttpServer {
                 get("/available", tennisCourtsHandler::listAvailableCourts);
             });
             path("api/reservations", () -> {
+                get("/range", reservationHandler::getReservationRange);
                 get("/calendar", reservationHandler::createReservationsCalendar);
                 get(":userId", reservationHandler::listMyReservations);
                 post(":userId", reservationHandler::reserveCourt);

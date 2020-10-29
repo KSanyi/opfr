@@ -6,6 +6,7 @@ import java.util.Map;
 
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
+import hu.kits.opfr.common.DateTimeRange;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.reservation.Reservation;
 import hu.kits.opfr.domain.reservation.ReservationService;
@@ -21,6 +22,14 @@ class ReservationHandler {
     ReservationHandler(UserService userService, ReservationService reservationService) {
         this.reservationService = reservationService;
         this.userService = userService;
+    }
+    
+    void getReservationRange(Context context) {
+        //String userId = context.pathParam("userId");
+        //UserData user = userService.findUser(userId);
+        
+        DateTimeRange reservationRange = reservationService.getAllowedReservationRange();
+        context.json(reservationRange);
     }
     
     void listMyReservations(Context context) {

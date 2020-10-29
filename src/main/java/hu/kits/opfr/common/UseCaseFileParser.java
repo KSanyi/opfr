@@ -6,6 +6,7 @@ import static java.util.stream.Collectors.toList;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +48,7 @@ public class UseCaseFileParser {
         List<String> requestLines = findSectionLines(lines, "request");
         List<String> responseStatusLines = findSectionLines(lines, "response-status");
         List<String> responseBodyLines = findSectionLines(lines, "response-body");
+        List<String> staticTimeLines = findSectionLines(lines, "set-time");
         
         String name = lines.get(0);
         String description = readValue(String.join("\n", descriptionLines));
@@ -56,10 +58,15 @@ public class UseCaseFileParser {
         String requestJson = readJson(requestLines);
         int responseStatusCode = Integer.parseInt(readValue(responseStatusLines.get(0)));
         String responseJson = readJson(responseBodyLines);
+        LocalDateTime staticTime = readStaticTime(staticTimeLines);
         
-        return new TestCall(name, description, urlTemplate, httpMethod, requestJson, responseStatusCode, responseJson);
+        return new TestCall(name, description, urlTemplate, httpMethod, requestJson, responseStatusCode, responseJson, staticTime);
     }
     
+    private static LocalDateTime readStaticTime(List<String> staticTimeLines) {
+        return !staticTimeLines.isEmpty() ? LocalDateTime.parse(readValue(staticTimeLines.get(0))) : null; 
+    }
+
     private static String readJson(List<String> lines) {
         return lines.isEmpty() ? "" : lines.stream().skip(1).collect(joining("\n"));
     }
@@ -100,7 +107,8 @@ public class UseCaseFileParser {
         return allLines.size();
     }
     
-    public static record TestCall(String name, String description, String urlTemplate, HttpMethod httpMethod, String requestJson, int responseStatus, String responseJson) {
+    public static record TestCall(String name, String description, String urlTemplate, HttpMethod httpMethod, 
+            String requestJson, int responseStatus, String responseJson, LocalDateTime staticTime) {
         
         public String path() {
             return urlTemplate.replace("<url-base>", "");

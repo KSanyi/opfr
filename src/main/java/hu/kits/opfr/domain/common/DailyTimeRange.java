@@ -1,6 +1,7 @@
 package hu.kits.opfr.domain.common;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public record DailyTimeRange(LocalDate date, TimeRange timeRange) {
 
@@ -14,6 +15,14 @@ public record DailyTimeRange(LocalDate date, TimeRange timeRange) {
     
     public boolean intersectWith(DailyTimeRange other) {
         return date.equals(other.date) && timeRange.intersectWith(other.timeRange);
+    }
+
+    public LocalDateTime startDateTime() {
+        return date.atTime(timeRange.startAt(), 0);
+    }
+
+    public LocalDateTime endDateTime() {
+        return date.atTime(timeRange.endAt(), 0);
     }
     
 }

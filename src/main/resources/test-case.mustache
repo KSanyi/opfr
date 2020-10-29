@@ -19,6 +19,7 @@
         <h3> {{name}} </h3>
         <h4> {{description}}</h4>
         url: {{path}}<br/>
+        {{#staticTime}} set-time: <b>{{staticTime}}</b><br/>{{/staticTime}}
         method: <b>{{httpMethod}}</b><br/>
         request: {{^requestJson.isEmpty}}<pre><code>{{requestJson}}</code></pre>{{/requestJson.isEmpty}}<br/>
         response status: <b>{{responseStatus}}</b><br/>
