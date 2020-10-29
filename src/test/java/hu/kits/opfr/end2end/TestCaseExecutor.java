@@ -18,6 +18,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import hu.kits.opfr.SpyEmailSender;
 import hu.kits.opfr.TestUtil;
 import hu.kits.opfr.application.ResourceFactory;
 import hu.kits.opfr.common.Clock;
@@ -40,7 +41,7 @@ public class TestCaseExecutor {
     private void init() throws Exception {
         DataSource dataSource = InMemoryDataSourceFactory.createDataSource();
         
-        ResourceFactory resourceFactory = new ResourceFactory(dataSource);
+        ResourceFactory resourceFactory = new ResourceFactory(dataSource, new SpyEmailSender());
         
         port = TestUtil.findFreePort();
         httpServer = new HttpServer(port, resourceFactory);

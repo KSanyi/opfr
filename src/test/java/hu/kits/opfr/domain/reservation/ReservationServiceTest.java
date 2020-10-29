@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import hu.kits.opfr.SpyEmailSender;
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.common.DateTimeRange;
@@ -29,9 +30,11 @@ public class ReservationServiceTest {
 
     private ReservationService reservationService;
     
+    private final SpyEmailSender spyEmailSender = new SpyEmailSender();
+    
     @BeforeEach
     void init() {
-        reservationService = new ReservationService(new ReservationSettingsFakeRepository(), new ReservationFakeRepository(), new TennisCourtFakeRepository());
+        reservationService = new ReservationService(new ReservationSettingsFakeRepository(), new ReservationFakeRepository(), new TennisCourtFakeRepository(), spyEmailSender);
         Clock.setStaticTime(LocalDateTime.of(2020,7,30, 10,0));
     }
     

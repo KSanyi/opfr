@@ -21,6 +21,8 @@ import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.court.TennisCourtRepository;
+import hu.kits.opfr.domain.email.EmailCreator;
+import hu.kits.opfr.domain.email.EmailSender;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.user.UserData;
 
@@ -29,11 +31,15 @@ public class ReservationService {
     private final ReservationSettingsRepository reservationSettingsRepository;
     private final ReservationRepository reservationRepository;
     private final TennisCourtRepository tennisCourtRepository;
+    
+    private final EmailSender emailSender;
 
-    public ReservationService(ReservationSettingsRepository reservationSettingsRepository, ReservationRepository reservationRepository, TennisCourtRepository tennisCourtRepository) {
+    public ReservationService(ReservationSettingsRepository reservationSettingsRepository, ReservationRepository reservationRepository, TennisCourtRepository tennisCourtRepository,
+            EmailSender emailSender) {
         this.reservationSettingsRepository = reservationSettingsRepository;
         this.reservationRepository = reservationRepository;
         this.tennisCourtRepository = tennisCourtRepository;
+        this.emailSender = emailSender;
     }
     
     public List<TennisCourt> listAvailableCourts(DailyTimeRange dailyTimeRange) {
@@ -73,6 +79,7 @@ public class ReservationService {
         if(courtAvailable) {
             Reservation reservation = new Reservation(IdGenerator.generateId(), user, courtId, dailyTimeRange, Clock.now(), comment);
             reservationRepository.save(reservation);
+            emailSender.sendEmail(EmailCreator.createReservationConfirmationEmail(reservation));
         } else {
             throw new OPFRException("Court is not available");
         }

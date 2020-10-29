@@ -47,7 +47,7 @@ public class DailyTime {
     
     public LocalDateTime next() {
         LocalDateTime now = Clock.now();
-        LocalDateTime at =  LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), hour, min);
+        LocalDateTime at = LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), hour, min);
         if(at.isAfter(now)) {
             return at;
         } else {

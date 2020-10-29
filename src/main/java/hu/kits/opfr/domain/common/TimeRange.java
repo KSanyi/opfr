@@ -33,4 +33,8 @@ public record TimeRange(int startAt, int hours) {
         }
     }
     
+    public String format() {
+        return startAt + ":00 - " + endAt() + ":00";
+    }
+    
 }

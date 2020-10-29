@@ -3,6 +3,8 @@ package hu.kits.opfr.domain.common;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import hu.kits.opfr.common.Formatters;
+
 public record DailyTimeRange(LocalDate date, TimeRange timeRange) {
 
     public DailyTimeRange(LocalDate date, int startAt, int hours) {
@@ -23,6 +25,10 @@ public record DailyTimeRange(LocalDate date, TimeRange timeRange) {
 
     public LocalDateTime endDateTime() {
         return date.atTime(timeRange.endAt(), 0);
+    }
+    
+    public String format() {
+        return Formatters.formatDate(date) + " " + timeRange.format();
     }
     
 }

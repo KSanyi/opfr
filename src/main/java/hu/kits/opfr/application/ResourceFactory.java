@@ -4,6 +4,7 @@ import javax.sql.DataSource;
 
 import hu.kits.opfr.domain.court.TennisCourtRepository;
 import hu.kits.opfr.domain.court.TennisCourtService;
+import hu.kits.opfr.domain.email.EmailSender;
 import hu.kits.opfr.domain.reservation.ReservationService;
 import hu.kits.opfr.domain.user.UserRepository;
 import hu.kits.opfr.domain.user.UserService;
@@ -19,14 +20,15 @@ public class ResourceFactory {
     private final ReservationService reservationService;
     private final TennisCourtService tennisCourtService;
     
-    public ResourceFactory(DataSource dataSource) {
+    public ResourceFactory(DataSource dataSource, EmailSender emailSender) {
         UserRepository userRepository = new UserJdbcRepository(dataSource);
         userService = new UserService(userRepository, new DummyPasswordHasher());
         TennisCourtRepository tennisCourtRepository = new TennisCourtFakeRepository();
         reservationService = new ReservationService(
                 new ReservationSettingsJdbcRepository(dataSource), 
                 new ReservationJdbcRepository(dataSource, userRepository), 
-                tennisCourtRepository);
+                tennisCourtRepository,
+                emailSender);
         tennisCourtService = new TennisCourtService(tennisCourtRepository);
     }
 

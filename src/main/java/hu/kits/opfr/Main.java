@@ -12,8 +12,11 @@ import org.slf4j.LoggerFactory;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import hu.kits.opfr.application.ResourceFactory;
+import hu.kits.opfr.common.Environment;
+import hu.kits.opfr.domain.email.EmailSender;
 import hu.kits.opfr.domain.scheduler.MorningJob;
 import hu.kits.opfr.domain.scheduler.Scheduler;
+import hu.kits.opfr.infrastructure.email.SendGridEmailSender;
 import hu.kits.opfr.infrastructure.http.HttpServer;
 
 public class Main {
@@ -24,12 +27,16 @@ public class Main {
         
         logger.info("Starting application");
         
+        Environment environment = getEnvironment();
+        
         int port = getPort();
         URI dbUri = getDatabaseUri();
         
         DataSource dataSource = createDataSource(dbUri);
         
-        ResourceFactory resourceFactory = new ResourceFactory(dataSource);
+        EmailSender emailSender = createEmailSender(environment);
+        
+        ResourceFactory resourceFactory = new ResourceFactory(dataSource, emailSender);
         
         Scheduler scheduler = new Scheduler();
         MorningJob morningJob = new MorningJob(resourceFactory.getReservationService());
@@ -39,6 +46,20 @@ public class Main {
         morningJob.execute();
         
         new HttpServer(port, resourceFactory).start();
+    }
+    
+    private static Environment getEnvironment() {
+        
+        String environmentString = loadMandatoryEnvVariable("ENVIRONMENT");
+        
+        Environment environment;
+        try {
+            environment = Environment.valueOf(environmentString);
+        } catch(Exception ex) {
+            throw new IllegalArgumentException("System environment variable ENVIRONMENT is wrong: " + environmentString);
+        }
+        logger.info("ENVIRONMENT: " + environment);
+        return environment;
     }
     
     private static int getPort() {
@@ -68,6 +89,13 @@ public class Main {
         dataSource.setUser(username);
         dataSource.setPassword(password);
         return dataSource;
+    }
+    
+    private static EmailSender createEmailSender(Environment environment) throws URISyntaxException {
+        String sendGridUserName = System.getenv("SENDGRID_USERNAME");
+        String sendGridPassword = System.getenv("SENDGRID_PASSWORD");
+        
+        return new SendGridEmailSender(environment, sendGridUserName, sendGridPassword);
     }
     
     private static String loadMandatoryEnvVariable(String name) {
