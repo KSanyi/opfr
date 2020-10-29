@@ -17,6 +17,7 @@ import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.infrastructure.database.ReservationFakeRepository;
+import hu.kits.opfr.infrastructure.database.ReservationSettingsFakeRepository;
 import hu.kits.opfr.infrastructure.database.TennisCourtFakeRepository;
 
 public class ReservationServiceTest {
@@ -25,7 +26,7 @@ public class ReservationServiceTest {
     
     @BeforeEach
     void init() {
-        reservationService = new ReservationService(new ReservationFakeRepository(), new TennisCourtFakeRepository());
+        reservationService = new ReservationService(new ReservationSettingsFakeRepository(), new ReservationFakeRepository(), new TennisCourtFakeRepository());
     }
     
     @Test

@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.mysql.cj.jdbc.MysqlDataSource;
 
 import hu.kits.opfr.application.ResourceFactory;
+import hu.kits.opfr.domain.scheduler.MorningJob;
+import hu.kits.opfr.domain.scheduler.Scheduler;
 import hu.kits.opfr.infrastructure.http.HttpServer;
 
 public class Main {
@@ -28,6 +30,13 @@ public class Main {
         DataSource dataSource = createDataSource(dbUri);
         
         ResourceFactory resourceFactory = new ResourceFactory(dataSource);
+        
+        Scheduler scheduler = new Scheduler();
+        MorningJob morningJob = new MorningJob(resourceFactory.getReservationService());
+        scheduler.addJob(morningJob);
+        
+        // the job normally scheduled but just make sure at server start we execute it
+        morningJob.execute();
         
         new HttpServer(port, resourceFactory).start();
     }

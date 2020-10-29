@@ -4,8 +4,11 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -21,10 +24,12 @@ import hu.kits.opfr.domain.user.UserData;
 
 public class ReservationService {
 
+    private final ReservationSettingsRepository reservationSettingsRepository;
     private final ReservationRepository reservationRepository;
     private final TennisCourtRepository tennisCourtRepository;
 
-    public ReservationService(ReservationRepository reservationRepository, TennisCourtRepository tennisCourtRepository) {
+    public ReservationService(ReservationSettingsRepository reservationSettingsRepository, ReservationRepository reservationRepository, TennisCourtRepository tennisCourtRepository) {
+        this.reservationSettingsRepository = reservationSettingsRepository;
         this.reservationRepository = reservationRepository;
         this.tennisCourtRepository = tennisCourtRepository;
     }
@@ -82,6 +87,18 @@ public class ReservationService {
         return reservations.stream()
                 .filter(res -> res.dailyTimeRange().date().equals(date))
                 .collect(Collectors.groupingBy(Reservation::courtId, TreeMap::new, toList()));
+    }
+
+    public Optional<LocalTime> drawTodaysReservationOpeningTime() {
+        LocalDate today = Clock.today();
+        Optional<LocalTime> todaysReservationOpenTime = reservationSettingsRepository.getReservationOpenTimeFor(today);
+        if(todaysReservationOpenTime.isEmpty()) {
+            LocalTime randomTime = LocalTime.of(20, new Random().nextInt(60));
+            reservationSettingsRepository.saveReservationOpenTime(today, randomTime);
+            return Optional.of(randomTime);
+        } else {
+            return Optional.empty();
+        }
     }
     
 }
