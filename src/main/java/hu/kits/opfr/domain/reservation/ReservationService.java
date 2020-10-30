@@ -25,20 +25,23 @@ import hu.kits.opfr.domain.email.EmailCreator;
 import hu.kits.opfr.domain.email.EmailSender;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.user.UserData;
+import hu.kits.opfr.domain.user.UserRepository;
 
 public class ReservationService {
 
     private final ReservationSettingsRepository reservationSettingsRepository;
     private final ReservationRepository reservationRepository;
     private final TennisCourtRepository tennisCourtRepository;
+    private final UserRepository userRepository;
     
     private final EmailSender emailSender;
 
     public ReservationService(ReservationSettingsRepository reservationSettingsRepository, ReservationRepository reservationRepository, TennisCourtRepository tennisCourtRepository,
-            EmailSender emailSender) {
+            UserRepository userRepository, EmailSender emailSender) {
         this.reservationSettingsRepository = reservationSettingsRepository;
         this.reservationRepository = reservationRepository;
         this.tennisCourtRepository = tennisCourtRepository;
+        this.userRepository = userRepository;
         this.emailSender = emailSender;
     }
     
@@ -64,8 +67,9 @@ public class ReservationService {
         return DateTimeRange.of(from, to);
     }
     
-    public void reserveCourt(UserData user, ReservationRequest reservationRequest) throws OPFRException {
+    public void reserveCourt(ReservationRequest reservationRequest) throws OPFRException {
         
+        UserData user = userRepository.loadUser(reservationRequest.userId());
         String courtId = reservationRequest.courtId();
         DailyTimeRange dailyTimeRange = reservationRequest.dailyTimeRange();
         
@@ -90,9 +94,13 @@ public class ReservationService {
         return allowedReservationRange.contains(dailyTimeRange);
     }
 
-    public List<Reservation> listMyReservations(UserData user, DateRange dateRange) {
+    public List<Reservation> listPlayersReservations(String playerId, DateRange dateRange) {
         
-        return reservationRepository.load(dateRange, user);
+        return reservationRepository.load(dateRange, playerId);
+    }
+    
+    public void cancelReservation(String reservationId) {
+        reservationRepository.delete(reservationId);
     }
     
     public Map<LocalDate, Map<String, List<Reservation>>> listCourtAvailability(DateRange dateRange) {
@@ -131,6 +139,10 @@ public class ReservationService {
         } else {
             return Optional.empty();
         }
+    }
+
+    public Optional<Reservation> findReservation(String reservationId) {
+        return reservationRepository.findReservation(reservationId);
     }
     
 }

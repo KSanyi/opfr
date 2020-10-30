@@ -65,10 +65,14 @@ public class HttpServer {
                 get("/available", tennisCourtsHandler::listAvailableCourts);
             });
             path("api/reservations", () -> {
-                get("/range", reservationHandler::getReservationRange);
-                get("/calendar", reservationHandler::createReservationsCalendar);
-                get(":userId", reservationHandler::listMyReservations);
-                post(":userId", reservationHandler::reserveCourt);
+                get("/calendar", reservationHandler::showReservationsCalendar);
+                get(":reservationId", reservationHandler::getReservation);
+                get(reservationHandler::listPlayersReservations);
+                post(reservationHandler::reserveCourt);
+                delete(":reservationId",reservationHandler::cancelReservation);
+            });
+            path("api/reservations-range", () -> {
+                get(reservationHandler::getReservationRange);
             });
         }).exception(BadRequestException.class, this::handleException)
           .exception(OPFRException.class, this::handleException);

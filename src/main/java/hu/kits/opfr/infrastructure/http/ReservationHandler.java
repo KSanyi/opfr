@@ -10,7 +10,6 @@ import hu.kits.opfr.common.DateTimeRange;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.reservation.Reservation;
 import hu.kits.opfr.domain.reservation.ReservationService;
-import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.UserService;
 import io.javalin.http.Context;
 
@@ -24,6 +23,11 @@ class ReservationHandler {
         this.userService = userService;
     }
     
+    void getReservation(Context context) {
+        String reservationId = context.pathParam("reservationId");
+        reservationService.findReservation(reservationId).ifPresentOrElse(context::json, () -> context.status(404));
+    }
+    
     void getReservationRange(Context context) {
         //String userId = context.pathParam("userId");
         //UserData user = userService.findUser(userId);
@@ -32,22 +36,23 @@ class ReservationHandler {
         context.json(reservationRange);
     }
     
-    void listMyReservations(Context context) {
-        String userId = context.pathParam("userId");
-        UserData user = userService.findUser(userId);
-        context.json(reservationService.listMyReservations(user, DateRange.of(Clock.today().getYear())));
+    void listPlayersReservations(Context context) {
+        String userId = context.queryParam("player");
+        context.json(reservationService.listPlayersReservations(userId, DateRange.of(Clock.today().getYear())));
     }
     
     void reserveCourt(Context context) {
-        String userId = context.pathParam("userId");
-        UserData user = userService.findUser(userId);
-        
         ReservationRequest reservationRequest = RequestParser.parseReservationRequest(context.body());
         
-        reservationService.reserveCourt(user, reservationRequest);
+        reservationService.reserveCourt(reservationRequest);
     }
     
-    void createReservationsCalendar(Context context) {
+    void cancelReservation(Context context) {
+        String reservationId = context.pathParam("reservationId");
+        reservationService.cancelReservation(reservationId);
+    }
+    
+    void showReservationsCalendar(Context context) {
         LocalDate fromDate = context.queryParam("from", LocalDate.class).get();
         LocalDate toDate = context.queryParam("to", LocalDate.class).get();
         DateRange dateRange = DateRange.of(fromDate, toDate);

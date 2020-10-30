@@ -16,7 +16,7 @@ response-status: 200
 
 Call 2
 description: Lists the reservations for a user
-url: <url-base>/api/reservations/ksanyi
+url: <url-base>/api/reservations?player=ksanyi
 method: GET
 response-status: 200
 response-body:
@@ -50,7 +50,7 @@ response-body:
 Call 4
 set-time: 2020-09-01T09:00
 description: Check available dates to reserve
-url: <url-base>/api/reservations/range
+url: <url-base>/api/reservations-range
 method: GET
 response-status: 200
 response-body:
@@ -61,10 +61,11 @@ response-body:
 
 Call 5
 description: Create a reservation for a user
-url: <url-base>/api/reservations/ksanyi
+url: <url-base>/api/reservations
 method: POST
 request:
 {
+    "userId": "ksanyi",
     "courtId": "1",
     "time": {
         "date": "2020-09-01",
@@ -78,8 +79,36 @@ request:
 response-status: 200
 
 Call 6
+description: Find a reservation by reservation id
+url: <url-base>/api/reservations/23c69354-d9e8-4d07-9e84-000000000001
+method: GET
+response-status: 200
+response-body:
+{
+  "comment": "Having fun",
+  "id": "23c69354-d9e8-4d07-9e84-000000000001",
+  "time": {
+    "date": "2020-09-01",
+    "timeRange": {
+      "hours": 2,
+      "startAt": 10
+    }
+  },
+  "user": {
+    "role": "ADMIN",
+    "phone": "+36703699208",
+    "name": "Kócsó Sándor",
+    "userId": "ksanyi",
+    "email": "kocso.sandor.gabor@gmail.com"
+  },
+  "courtId": "1",
+  "timestamp": "2020-09-01T09:00"
+}
+
+
+Call 7
 description: Lists the reservations for a user
-url: <url-base>/api/reservations/ksanyi
+url: <url-base>/api/reservations?player=ksanyi
 method: GET
 response-status: 200
 response-body:
@@ -104,7 +133,7 @@ response-body:
   "timestamp": "2020-09-01T09:00"
 }]
 
-Call 7
+Call 8
 description: Lists the reservations in the system in a calendar like view
 url: <url-base>/api/reservations/calendar?from=2020-08-30&to=2020-09-02
 method: GET
@@ -136,7 +165,7 @@ response-body:
   }]}
 }
 
-Call 8
+Call 9
 description: Check available courts for a time slot
 url: <url-base>/api/courts/available?date=2020-09-01&startAt=10&hours=1
 method: GET
@@ -156,3 +185,9 @@ response-body:
     "id": "4"
   }
 ]
+
+Call 10
+description: Cancel a reservation
+url: <url-base>/api/reservations/23c69354-d9e8-4d07-9e84-000000000001
+method: DELETE
+response-status: 200

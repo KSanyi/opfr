@@ -27,7 +27,7 @@ public class ResourceFactory {
         reservationService = new ReservationService(
                 new ReservationSettingsJdbcRepository(dataSource), 
                 new ReservationJdbcRepository(dataSource, userRepository), 
-                tennisCourtRepository,
+                tennisCourtRepository, userRepository,
                 emailSender);
         tennisCourtService = new TennisCourtService(tennisCourtRepository);
     }

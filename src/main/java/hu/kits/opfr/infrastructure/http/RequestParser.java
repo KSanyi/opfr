@@ -51,6 +51,7 @@ public class RequestParser {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
             return new ReservationRequest(
+                    jsonObject.getString("userId"),
                     jsonObject.getString("courtId"),
                     parseDailyTimeRange(jsonObject.getJSONObject("time")),
                     jsonObject.getString("comment"));

@@ -14,6 +14,4 @@ public class TennisCourtService {
         return tennisCourtRepository.listAll();
     }
     
-    
-    
 }

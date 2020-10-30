@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.sql.DataSource;
 
@@ -16,7 +17,6 @@ import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.TimeRange;
 import hu.kits.opfr.domain.reservation.Reservation;
 import hu.kits.opfr.domain.reservation.ReservationRepository;
-import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.UserRepository;
 import hu.kits.opfr.domain.user.Users;
 
@@ -41,6 +41,18 @@ public class ReservationJdbcRepository implements ReservationRepository {
     }
     
     @Override
+    public Optional<Reservation> findReservation(String reservationId) {
+        Users users = userRepository.loadAllUsers();
+        
+        String sql = String.format("SELECT * FROM %s WHERE %s = :reservationId", TABLE_RESERVATION, COLUMN_ID);
+        
+        return jdbi.withHandle(handle -> 
+            handle.createQuery(sql)
+            .bind("reservationId", reservationId)
+            .map((rs, ctx) -> mapToReservation(rs, users)).findOne());
+    }
+    
+    @Override
     public void save(Reservation reservation) {
         jdbi.withHandle(handle -> JdbiUtil.createInsertStatement(handle, TABLE_RESERVATION, createMap(reservation)).execute());    
     }
@@ -57,7 +69,7 @@ public class ReservationJdbcRepository implements ReservationRepository {
         valuesMap.put(COLUMN_TIMESTAMP, reservation.timeStamp());
         return valuesMap;
     }
-
+    
     @Override
     public List<Reservation> load(LocalDate date, String courtId) {
         
@@ -73,7 +85,7 @@ public class ReservationJdbcRepository implements ReservationRepository {
     }
 
     @Override
-    public List<Reservation> load(DateRange dateRange, UserData user) {
+    public List<Reservation> load(DateRange dateRange, String userId) {
         
         Users users = userRepository.loadAllUsers();
         
@@ -81,7 +93,7 @@ public class ReservationJdbcRepository implements ReservationRepository {
         
         return jdbi.withHandle(handle -> 
             handle.createQuery(sql)
-            .bind("userId", user.userId())
+            .bind("userId", userId)
             .bind("from", dateRange.from())
             .bind("to", dateRange.to())
             .map((rs, ctx) -> mapToReservation(rs, users)).list());
@@ -112,5 +124,9 @@ public class ReservationJdbcRepository implements ReservationRepository {
                 rs.getString(COLUMN_COMMENT));
     }
     
+    @Override
+    public void delete(String reservationId) {
+        jdbi.withHandle(handle -> handle.execute(String.format("DELETE FROM %s WHERE %s = ?", TABLE_RESERVATION, COLUMN_ID), reservationId));
+    }
 
 }

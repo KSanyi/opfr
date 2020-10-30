@@ -9,7 +9,6 @@ import java.util.List;
 
 import javax.sql.DataSource;
 
-import org.eclipse.jetty.http.HttpMethod;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
@@ -73,12 +72,20 @@ public class TestCaseExecutor {
             
             String url = testCall.urlTemplate().replaceAll("<url-base>", "http://localhost:" + port);
             HttpResponse<String> httpResponse;
-            if(testCall.httpMethod() == HttpMethod.GET) {
-                httpResponse = Unirest.get(url).asString();
-                logger.info("Calling GET {}", url);
-            } else {
-                httpResponse = Unirest.post(url).body(testCall.requestJson()).asString();
-                logger.info("Calling POST {}", url);
+            
+            logger.info("Calling {} {}", testCall.httpMethod(), url);
+            switch (testCall.httpMethod()) {
+                case GET: 
+                    httpResponse = Unirest.get(url).asString();
+                    break;
+                case POST: 
+                    httpResponse = Unirest.post(url).body(testCall.requestJson()).asString();
+                    break;
+                case DELETE:
+                    httpResponse = Unirest.delete(url).asString();
+                    break;
+                case PUT:
+                default: throw new IllegalArgumentException("HTTP method not supported: " + testCall.httpMethod());
             }
             
             logger.info("Response status: {} {}", httpResponse.getStatus(), httpResponse.getStatusText());

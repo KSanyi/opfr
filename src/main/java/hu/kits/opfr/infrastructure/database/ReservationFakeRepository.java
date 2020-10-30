@@ -5,21 +5,31 @@ import static java.util.stream.Collectors.toList;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.domain.reservation.Reservation;
 import hu.kits.opfr.domain.reservation.ReservationRepository;
-import hu.kits.opfr.domain.user.UserData;
 
 public class ReservationFakeRepository implements ReservationRepository {
 
     private final List<Reservation> reservations = new ArrayList<>();
     
     @Override
+    public Optional<Reservation> findReservation(String reservationId) {
+        return reservations.stream().filter(res -> res.id().equals(reservationId)).findAny();
+    }
+    
+    @Override
     public void save(Reservation reservation) {
         reservations.add(reservation);
     }
 
+    @Override
+    public void delete(String reservationId) {
+        reservations.removeIf(res -> res.id().equals(reservationId));
+    }
+    
     @Override
     public List<Reservation> load(LocalDate date, String courtId) {
         return reservations.stream()
@@ -29,10 +39,10 @@ public class ReservationFakeRepository implements ReservationRepository {
     }
 
     @Override
-    public List<Reservation> load(DateRange dateRange, UserData user) {
+    public List<Reservation> load(DateRange dateRange, String userId) {
         return reservations.stream()
                 .filter(res -> dateRange.contains(res.dailyTimeRange().date()))
-                .filter(res -> res.user().userId().equals(user.userId()))
+                .filter(res -> res.user().userId().equals(userId))
                 .collect(toList());
     }
 

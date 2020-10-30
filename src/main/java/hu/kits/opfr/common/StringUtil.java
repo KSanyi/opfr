@@ -2,6 +2,7 @@ package hu.kits.opfr.common;
 
 import java.text.ParseException;
 import java.text.RuleBasedCollator;
+import java.util.Random;
 
 public class StringUtil {
 
@@ -27,6 +28,19 @@ public class StringUtil {
     
     public static boolean startsWith(String text, String regex) {
         return text.matches("^" + regex + ".*");
+    }
+    
+    public static String generateRandomString(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        Random random = new Random();
+     
+        String generatedString = random.ints(0, chars.length())
+          .map(chars::charAt)
+          .limit(length)
+          .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+          .toString();
+     
+        return generatedString;
     }
     
     public static final RuleBasedCollator HUN_COLLATOR;

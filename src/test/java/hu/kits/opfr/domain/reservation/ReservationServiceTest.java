@@ -1,7 +1,5 @@
 package hu.kits.opfr.domain.reservation;
 
-import static hu.kits.opfr.TestUtil.TEST_MEMBER_1;
-import static hu.kits.opfr.TestUtil.TEST_MEMBER_2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,6 +12,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import hu.kits.opfr.FakeUserRepository;
 import hu.kits.opfr.SpyEmailSender;
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
@@ -34,7 +33,8 @@ public class ReservationServiceTest {
     
     @BeforeEach
     void init() {
-        reservationService = new ReservationService(new ReservationSettingsFakeRepository(), new ReservationFakeRepository(), new TennisCourtFakeRepository(), spyEmailSender);
+        reservationService = new ReservationService(new ReservationSettingsFakeRepository(), new ReservationFakeRepository(), 
+                new TennisCourtFakeRepository(), new FakeUserRepository(), spyEmailSender);
         Clock.setStaticTime(LocalDateTime.of(2020,7,30, 10,0));
     }
     
@@ -58,29 +58,29 @@ public class ReservationServiceTest {
     @Test
     void reserveSuccesfully() {
         
-        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-01", 10, 2), ""));
+        reservationService.reserveCourt(new ReservationRequest("testUser1", "1", new DailyTimeRange("2020-08-01", 10, 2), ""));
         
-        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-01", 19, 1), ""));
+        reservationService.reserveCourt(new ReservationRequest("testUser1", "1", new DailyTimeRange("2020-08-01", 19, 1), ""));
         
-        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-02", 10, 2), ""));
+        reservationService.reserveCourt(new ReservationRequest("testUser1", "1", new DailyTimeRange("2020-08-02", 10, 2), ""));
         
-        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("2", new DailyTimeRange("2020-08-01", 10, 2), ""));
+        reservationService.reserveCourt(new ReservationRequest("testUser1", "2", new DailyTimeRange("2020-08-01", 10, 2), ""));
         
-        List<Reservation> member1Reservations = reservationService.listMyReservations(TEST_MEMBER_1, DateRange.of(2020));
+        List<Reservation> member1Reservations = reservationService.listPlayersReservations("testUser1", DateRange.of(2020));
         
         assertEquals(4, member1Reservations.size());
         assertEquals("1", member1Reservations.get(0).courtId());
         assertEquals(new DailyTimeRange("2020-08-01", 10, 2), member1Reservations.get(0).dailyTimeRange());
         
-        assertTrue( reservationService.listMyReservations(TEST_MEMBER_2, DateRange.of(2020)).isEmpty());
+        assertTrue(reservationService.listPlayersReservations("testUser2", DateRange.of(2020)).isEmpty());
     }
     
     @Test
     void reserveFailedAsCourseIsNotAvailable() {
-        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-01", 10, 2), ""));
+        reservationService.reserveCourt(new ReservationRequest("testUser1", "1", new DailyTimeRange("2020-08-01", 10, 2), ""));
         
         OPFRException exception = Assertions.assertThrows(OPFRException.class, () -> {
-            reservationService.reserveCourt(TEST_MEMBER_2, new ReservationRequest("1", new DailyTimeRange("2020-08-01", 11, 1), ""));
+            reservationService.reserveCourt(new ReservationRequest("testUser2", "1", new DailyTimeRange("2020-08-01", 11, 1), ""));
         });
         assertEquals("Court is not available", exception.getMessage());
     }
@@ -88,7 +88,7 @@ public class ReservationServiceTest {
     @Test
     void reserveFailedAsDateTooFar() {
         OPFRException exception = Assertions.assertThrows(OPFRException.class, () -> {
-            reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", new DailyTimeRange("2020-08-10", 10, 2), ""));
+            reservationService.reserveCourt(new ReservationRequest("testUser1", "1", new DailyTimeRange("2020-08-10", 10, 2), ""));
         });
         assertEquals("Reservation is not allowed for 2020-08-10", exception.getMessage());
     }
@@ -100,7 +100,7 @@ public class ReservationServiceTest {
         List<TennisCourt> availableCourts = reservationService.listAvailableCourts(myTennisTime);
         assertEquals(4, availableCourts.size());
         
-        reservationService.reserveCourt(TEST_MEMBER_1, new ReservationRequest("1", myTennisTime, ""));
+        reservationService.reserveCourt(new ReservationRequest("testUser1", "1", myTennisTime, ""));
         
         availableCourts = reservationService.listAvailableCourts(myTennisTime);
         assertEquals(3, availableCourts.size());
