@@ -60,7 +60,7 @@ response-body:
 }
 
 Call 5
-description: Create a reservation for a user
+description: Create a reservation
 url: <url-base>/api/reservations
 method: POST
 request:
@@ -70,13 +70,34 @@ request:
     "time": {
         "date": "2020-09-01",
         "timeRange": {
-            "startAt": 10,
+            "startAt": 11,
             "hours": 2
         }
     },
     "comment": "Having fun",
 }
 response-status: 200
+response-body:
+{
+  "comment": "Having fun",
+  "id": "23c69354-d9e8-4d07-9e84-000000000001",
+  "time": {
+    "date": "2020-09-01",
+    "timeRange": {
+      "hours": 2,
+      "startAt": 11
+    }
+  },
+  "user": {
+    "role": "ADMIN",
+    "phone": "+36703699208",
+    "name": "Kócsó Sándor",
+    "userId": "ksanyi",
+    "email": "kocso.sandor.gabor@gmail.com"
+  },
+  "courtId": "1",
+  "timestamp": "2020-09-01T09:00"
+}
 
 Call 6
 description: Find a reservation by reservation id
@@ -91,7 +112,7 @@ response-body:
     "date": "2020-09-01",
     "timeRange": {
       "hours": 2,
-      "startAt": 10
+      "startAt": 11
     }
   },
   "user": {
@@ -119,7 +140,7 @@ response-body:
     "date": "2020-09-01",
     "timeRange": {
       "hours": 2,
-      "startAt": 10
+      "startAt": 11
     }
   },
   "user": {
@@ -150,7 +171,7 @@ response-body:
       "date": "2020-09-01",
       "timeRange": {
         "hours": 2,
-        "startAt": 10
+        "startAt": 11
       }
     },
     "user": {
@@ -167,7 +188,7 @@ response-body:
 
 Call 9
 description: Check available courts for a time slot
-url: <url-base>/api/courts/available?date=2020-09-01&startAt=10&hours=1
+url: <url-base>/api/courts/available?date=2020-09-01&startAt=11&hours=1
 method: GET
 response-status: 200
 response-body:

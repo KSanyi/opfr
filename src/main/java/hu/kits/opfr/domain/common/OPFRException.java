@@ -6,4 +6,8 @@ public class OPFRException extends RuntimeException {
         super(message);
     }
     
+    public static class OPFRResourceNotFoundException extends RuntimeException {
+        
+    }
+    
 }

@@ -44,7 +44,8 @@ class ReservationHandler {
     void reserveCourt(Context context) {
         ReservationRequest reservationRequest = RequestParser.parseReservationRequest(context.body());
         
-        reservationService.reserveCourt(reservationRequest);
+        Reservation reservation = reservationService.reserveCourt(reservationRequest);
+        context.json(reservation);
     }
     
     void cancelReservation(Context context) {

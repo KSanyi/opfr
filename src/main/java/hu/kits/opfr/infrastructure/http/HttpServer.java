@@ -75,7 +75,8 @@ public class HttpServer {
                 get(reservationHandler::getReservationRange);
             });
         }).exception(BadRequestException.class, this::handleException)
-          .exception(OPFRException.class, this::handleException);
+          .exception(OPFRException.class, this::handleException)
+          .exception(OPFRException.OPFRResourceNotFoundException.class, this::handleException);
         
         this.port = port;
         
@@ -117,15 +118,23 @@ public class HttpServer {
     }
     
     private void handleException(BadRequestException ex, Context context) {
-        context.status(400);
-        context.result(ex.getMessage());
-        logger.error(ex.getMessage());
+        handleException(context, 400, ex.getMessage());
     }
     
     private void handleException(OPFRException ex, Context context) {
-        context.status(409);
-        context.result(ex.getMessage());
-        logger.error(ex.getMessage());
+        handleException(context, 409, ex.getMessage());
+    }
+    
+    private void handleException(OPFRException.OPFRResourceNotFoundException ex, Context context) {
+        handleException(context, 404, ex.getMessage());
+    }
+    
+    private static void handleException(Context context, int status, String message) {
+        context.status(status);
+        if(message != null) {
+            context.result(message);            
+        }
+        logger.error("Status: {}, message: {}", context.status(), message);
     }
     
 }

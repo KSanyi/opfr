@@ -19,6 +19,7 @@ import hu.kits.opfr.common.DateTimeRange;
 import hu.kits.opfr.common.IdGenerator;
 import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRResourceNotFoundException;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.court.TennisCourtRepository;
 import hu.kits.opfr.domain.email.EmailCreator;
@@ -29,6 +30,8 @@ import hu.kits.opfr.domain.user.UserRepository;
 
 public class ReservationService {
 
+    private final static int RESERVATION_CANCEL_MINS = 60;
+    
     private final ReservationSettingsRepository reservationSettingsRepository;
     private final ReservationRepository reservationRepository;
     private final TennisCourtRepository tennisCourtRepository;
@@ -56,8 +59,8 @@ public class ReservationService {
     
     public DateTimeRange getAllowedReservationRange() {
         LocalDateTime now = Clock.now();
-        LocalDateTime from = now.withMinute(0).withSecond(0).plusHours(1);
-        LocalDateTime to = now.plusDays(6).withMinute(0).withSecond(0).withHour(23);
+        LocalDateTime from = now.withMinute(0).withSecond(0).withNano(0).plusHours(1);
+        LocalDateTime to = now.plusDays(6).withMinute(0).withSecond(0).withNano(0).withHour(23);
         
         Optional<LocalTime> todaysReservationOpenTime = reservationSettingsRepository.getReservationOpenTimeFor(now.toLocalDate());
         if(todaysReservationOpenTime.isPresent() && now.toLocalTime().isAfter(todaysReservationOpenTime.get())) {
@@ -67,7 +70,7 @@ public class ReservationService {
         return DateTimeRange.of(from, to);
     }
     
-    public void reserveCourt(ReservationRequest reservationRequest) throws OPFRException {
+    public Reservation reserveCourt(ReservationRequest reservationRequest) throws OPFRException {
         
         UserData user = userRepository.loadUser(reservationRequest.userId());
         String courtId = reservationRequest.courtId();
@@ -84,6 +87,7 @@ public class ReservationService {
             Reservation reservation = new Reservation(IdGenerator.generateId(), user, courtId, dailyTimeRange, Clock.now(), comment);
             reservationRepository.save(reservation);
             emailSender.sendEmail(EmailCreator.createReservationConfirmationEmail(reservation));
+            return reservation;
         } else {
             throw new OPFRException("Court is not available");
         }
@@ -100,7 +104,14 @@ public class ReservationService {
     }
     
     public void cancelReservation(String reservationId) {
-        reservationRepository.delete(reservationId);
+        
+        Reservation reservation = reservationRepository.findReservation(reservationId).orElseThrow(() -> new OPFRResourceNotFoundException());
+        
+        if(Clock.now().plusMinutes(RESERVATION_CANCEL_MINS).isBefore(reservation.dailyTimeRange().startDateTime())) {
+            reservationRepository.delete(reservationId);            
+        } else {
+            throw new OPFRException("Too late to cancel reservation");
+        }
     }
     
     public Map<LocalDate, Map<String, List<Reservation>>> listCourtAvailability(DateRange dateRange) {
