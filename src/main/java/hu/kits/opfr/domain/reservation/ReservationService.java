@@ -20,8 +20,8 @@ import hu.kits.opfr.common.DateTimeUtils;
 import hu.kits.opfr.common.IdGenerator;
 import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
-import hu.kits.opfr.domain.common.OPFRException.OPFRConflictException;
 import hu.kits.opfr.domain.common.OPFRException.OPFRAuthorizationException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRConflictException;
 import hu.kits.opfr.domain.common.OPFRException.OPFRResourceNotFoundException;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.court.TennisCourtRepository;
@@ -52,12 +52,16 @@ public class ReservationService {
         this.emailSender = emailSender;
     }
     
+    public Optional<Reservation> findReservation(String reservationId) {
+        return reservationRepository.findReservation(reservationId);
+    }
+    
     public List<TennisCourt> listAvailableCourts(DailyTimeRange dailyTimeRange) {
         
         List<TennisCourt> tennisCourts = tennisCourtRepository.listAll();
         
         return tennisCourts.stream()
-                .filter(court -> isCourtAvailableAt(court.id(), dailyTimeRange))
+                .filter(court -> isCourtAvailableAt(court, dailyTimeRange))
                 .collect(toList());
     }
     
@@ -86,7 +90,9 @@ public class ReservationService {
         
         String comment = reservationRequest.comment();
         
-        boolean courtAvailable = isCourtAvailableAt(courtId, dailyTimeRange);
+        TennisCourt court = tennisCourtRepository.loadCourt(courtId);
+        
+        boolean courtAvailable = isCourtAvailableAt(court, dailyTimeRange);
         if(courtAvailable) {
             Reservation reservation = new Reservation(IdGenerator.generateId(), user, courtId, dailyTimeRange, Clock.now(), comment);
             reservationRepository.save(reservation);
@@ -118,7 +124,7 @@ public class ReservationService {
         }
     }
     
-    public Map<LocalDate, Map<String, List<Reservation>>> listCourtAvailability(DateRange dateRange) {
+    public Map<LocalDate, Map<String, List<Reservation>>> listDailyReservationsPerCourt(DateRange dateRange) {
         
         List<Reservation> reservations = reservationRepository.load(dateRange);
         
@@ -129,8 +135,13 @@ public class ReservationService {
                 TreeMap::new));
     }
     
-    private boolean isCourtAvailableAt(String courtId, DailyTimeRange dailyTimeRange) {
-        List<Reservation> reservations = reservationRepository.load(dailyTimeRange.date(), courtId);
+    private boolean isCourtAvailableAt(TennisCourt court, DailyTimeRange dailyTimeRange) {
+        
+        if(!court.courtAvailibility().contains(dailyTimeRange.timeRange())) {
+            return false;
+        }
+        
+        List<Reservation> reservations = reservationRepository.load(dailyTimeRange.date(), court.id());
         
         return !reservations.stream()
                 .map(Reservation::dailyTimeRange)
@@ -154,10 +165,6 @@ public class ReservationService {
         } else {
             return Optional.empty();
         }
-    }
-
-    public Optional<Reservation> findReservation(String reservationId) {
-        return reservationRepository.findReservation(reservationId);
     }
 
     public int sendReminderEmailsForUpcomingReservations() {

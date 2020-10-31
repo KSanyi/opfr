@@ -11,7 +11,7 @@ import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.domain.reservation.Reservation;
 import hu.kits.opfr.domain.reservation.ReservationRepository;
 
-public class ReservationFakeRepository implements ReservationRepository {
+public class ReservationsFakeRepository implements ReservationRepository {
 
     private final List<Reservation> reservations = new ArrayList<>();
     

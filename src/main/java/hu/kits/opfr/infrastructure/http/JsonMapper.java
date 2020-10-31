@@ -59,7 +59,8 @@ public class JsonMapper {
         
         return new JSONObject()
                 .put("id", tennisCourt.id())
-                .put("name", tennisCourt.name());
+                .put("name", tennisCourt.name())
+                .put("available", tennisCourt.courtAvailibility().format());
     }
     
     private static JSONObject mapUserToJson(UserData user) {

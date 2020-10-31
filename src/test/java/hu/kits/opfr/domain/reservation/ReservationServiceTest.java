@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import hu.kits.opfr.FakeUserRepository;
 import hu.kits.opfr.SpyEmailSender;
+import hu.kits.opfr.UsersFakeRepository;
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.common.DateTimeRange;
@@ -21,8 +21,8 @@ import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
-import hu.kits.opfr.infrastructure.database.ReservationFakeRepository;
 import hu.kits.opfr.infrastructure.database.ReservationSettingsFakeRepository;
+import hu.kits.opfr.infrastructure.database.ReservationsFakeRepository;
 import hu.kits.opfr.infrastructure.database.TennisCourtFakeRepository;
 
 public class ReservationServiceTest {
@@ -33,8 +33,8 @@ public class ReservationServiceTest {
     
     @BeforeEach
     void init() {
-        reservationService = new ReservationService(new ReservationSettingsFakeRepository(), new ReservationFakeRepository(), 
-                new TennisCourtFakeRepository(), new FakeUserRepository(), spyEmailSender);
+        reservationService = new ReservationService(new ReservationSettingsFakeRepository(), new ReservationsFakeRepository(), 
+                new TennisCourtFakeRepository(), new UsersFakeRepository(), spyEmailSender);
         Clock.setStaticTime(LocalDateTime.of(2020,7,30, 10,0));
     }
     
@@ -98,11 +98,14 @@ public class ReservationServiceTest {
         DailyTimeRange myTennisTime = new DailyTimeRange("2020-08-01", 10, 2);
         
         List<TennisCourt> availableCourts = reservationService.listAvailableCourts(myTennisTime);
-        assertEquals(4, availableCourts.size());
+        assertEquals(5, availableCourts.size());
         
         reservationService.reserveCourt(new ReservationRequest("testUser1", "1", myTennisTime, ""));
         
         availableCourts = reservationService.listAvailableCourts(myTennisTime);
+        assertEquals(4, availableCourts.size());
+        
+        availableCourts = reservationService.listAvailableCourts(new DailyTimeRange("2020-08-01", 22, 1));
         assertEquals(3, availableCourts.size());
     }
     

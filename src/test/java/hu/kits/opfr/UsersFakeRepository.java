@@ -10,7 +10,7 @@ import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.UserRepository;
 import hu.kits.opfr.domain.user.Users;
 
-public class FakeUserRepository implements UserRepository {
+public class UsersFakeRepository implements UserRepository {
 
     private final List<UserData> users = new ArrayList<>(List.of(
             new UserData("testUser1", "Test user 1", Role.MEMBER, "+362012345678", "test1@opfr.hu", true),

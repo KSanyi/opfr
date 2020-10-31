@@ -33,8 +33,12 @@ public record TimeRange(int startAt, int hours) {
         }
     }
     
+    public boolean contains(TimeRange other) {
+        return startAt <= other.startAt && other.endAt() <= endAt();
+    }
+    
     public String format() {
         return startAt + ":00 - " + endAt() + ":00";
     }
-    
+
 }

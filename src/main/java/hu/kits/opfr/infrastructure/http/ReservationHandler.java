@@ -58,7 +58,7 @@ class ReservationHandler {
         LocalDate toDate = context.queryParam("to", LocalDate.class).get();
         DateRange dateRange = DateRange.of(fromDate, toDate);
         
-        Map<LocalDate, Map<String, List<Reservation>>> courtAvailability = reservationService.listCourtAvailability(dateRange);
+        Map<LocalDate, Map<String, List<Reservation>>> courtAvailability = reservationService.listDailyReservationsPerCourt(dateRange);
         
         context.json(courtAvailability);
     }
