@@ -13,7 +13,8 @@ import javax.sql.DataSource;
 import org.jdbi.v3.core.Jdbi;
 
 import hu.kits.opfr.common.Pair;
-import hu.kits.opfr.domain.common.OPFRException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRConflictException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRResourceNotFoundException;
 import hu.kits.opfr.domain.user.Role;
 import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.UserRepository;
@@ -60,7 +61,7 @@ public class UserJdbcRepository implements UserRepository {
     
     @Override
     public UserData loadUser(String userId) {
-        return findUserWithPasswordHash(userId).map(Pair::getFirst).orElseThrow(() -> new OPFRException("Can not find user with id: '" + userId + "'"));
+        return findUserWithPasswordHash(userId).map(Pair::getFirst).orElseThrow(() -> new OPFRResourceNotFoundException("Can not find user with id: '" + userId + "'"));
     }
     
     private static UserData mapToUser(ResultSet rs) throws SQLException {
@@ -89,7 +90,7 @@ public class UserJdbcRepository implements UserRepository {
             jdbi.withHandle(handle -> JdbiUtil.createInsertStatement(handle, TABLE_USER, map).execute());    
         } catch(Exception ex) {
             if(ex.getCause() instanceof SQLIntegrityConstraintViolationException) {
-                throw new OPFRException("UserId '" + userData.userId() + "' already exists");
+                throw new OPFRConflictException("UserId '" + userData.userId() + "' already exists");
             } else {
                 throw new RuntimeException(ex);
             }
@@ -121,7 +122,7 @@ public class UserJdbcRepository implements UserRepository {
             
             JdbiUtil.executeUpdate(jdbi, TABLE_USER, originalMap, updatedMap, COLUMN_USERID, userId);
         } else {
-            throw new OPFRException("User '" + userId + "' not found");
+            throw new OPFRResourceNotFoundException("User '" + userId + "' not found");
         }
     }
 

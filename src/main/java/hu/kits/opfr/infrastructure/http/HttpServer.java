@@ -14,6 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import hu.kits.opfr.application.ResourceFactory;
 import hu.kits.opfr.domain.common.OPFRException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRAuthorizationException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRConflictException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRResourceNotFoundException;
 import io.javalin.Javalin;
 import io.javalin.core.util.RouteOverviewPlugin;
 import io.javalin.core.validation.JavalinValidation;
@@ -75,8 +78,7 @@ public class HttpServer {
                 get(reservationHandler::getReservationRange);
             });
         }).exception(BadRequestException.class, this::handleException)
-          .exception(OPFRException.class, this::handleException)
-          .exception(OPFRException.OPFRResourceNotFoundException.class, this::handleException);
+          .exception(OPFRException.class, this::handleException);
         
         this.port = port;
         
@@ -122,11 +124,13 @@ public class HttpServer {
     }
     
     private void handleException(OPFRException ex, Context context) {
-        handleException(context, 409, ex.getMessage());
-    }
-    
-    private void handleException(OPFRException.OPFRResourceNotFoundException ex, Context context) {
-        handleException(context, 404, ex.getMessage());
+        if(ex instanceof OPFRResourceNotFoundException) {
+            handleException(context, 404, ex.getMessage());    
+        } else if(ex instanceof OPFRConflictException) {
+            handleException(context, 409, ex.getMessage());    
+        } else if(ex instanceof OPFRAuthorizationException) {
+            handleException(context, 403, ex.getMessage());    
+        }
     }
     
     private static void handleException(Context context, int status, String message) {

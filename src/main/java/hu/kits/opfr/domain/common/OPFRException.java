@@ -6,8 +6,29 @@ public class OPFRException extends RuntimeException {
         super(message);
     }
     
-    public static class OPFRResourceNotFoundException extends RuntimeException {
+    public static class OPFRResourceNotFoundException extends OPFRException {
         
+        public OPFRResourceNotFoundException() {
+            super("");
+        }
+        
+        public OPFRResourceNotFoundException(String message) {
+            super(message);
+        }
+    }
+    
+    public static class OPFRConflictException extends OPFRException {
+        
+        public OPFRConflictException(String message) {
+            super(message);
+        }
+    }
+    
+    public static class OPFRAuthorizationException extends OPFRException {
+        
+        public OPFRAuthorizationException(String message) {
+            super(message);
+        }
     }
     
 }
