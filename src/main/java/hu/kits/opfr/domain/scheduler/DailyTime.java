@@ -1,6 +1,9 @@
 package hu.kits.opfr.domain.scheduler;
 
+import static java.util.stream.Collectors.toList;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.stream.IntStream;
 
 import hu.kits.opfr.common.Clock;
@@ -30,7 +33,7 @@ public class DailyTime {
     public static final DailyTime T_21_00 = DailyTime.of(21, 0);
     public static final DailyTime T_22_00 = DailyTime.of(22, 0);
     public static final DailyTime T_23_00 = DailyTime.of(23, 0);
-    public static final DailyTime[] EVERY_HOUR = IntStream.rangeClosed(0, 23).mapToObj(hour -> DailyTime.of(hour, 0)).toArray(DailyTime[]::new);
+    public static final List<DailyTime> EVERY_HOUR = IntStream.rangeClosed(0, 23).mapToObj(hour -> DailyTime.of(hour, 0)).collect(toList());
     
     public final int hour;
     

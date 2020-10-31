@@ -31,6 +31,10 @@ public record DateRange(LocalDate from, LocalDate to) implements Comparable<Date
         return new DateRange(from, from.plusYears(1).minusDays(1));
     }
     
+    public static DateRange singleDay(LocalDate date) {
+        return new DateRange(date, date);
+    }
+    
     public DateRange {
         if(from == null) from = MIN;
         if(to == null) to = MAX;
@@ -67,10 +71,6 @@ public record DateRange(LocalDate from, LocalDate to) implements Comparable<Date
     
     private static LocalDate min(LocalDate date1, LocalDate date2) {
         return date1.isBefore(date2) ? date1 : date2;
-    }
-    
-    public LocalDate getDay(int index) {
-        return from.plusDays(index);
     }
     
     @Override

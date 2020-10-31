@@ -14,7 +14,8 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 import hu.kits.opfr.application.ResourceFactory;
 import hu.kits.opfr.common.Environment;
 import hu.kits.opfr.domain.email.EmailSender;
-import hu.kits.opfr.domain.scheduler.MorningJob;
+import hu.kits.opfr.domain.scheduler.Jobs;
+import hu.kits.opfr.domain.scheduler.Jobs.MorningJob;
 import hu.kits.opfr.domain.scheduler.Scheduler;
 import hu.kits.opfr.infrastructure.email.SendGridEmailSender;
 import hu.kits.opfr.infrastructure.http.HttpServer;
@@ -41,6 +42,7 @@ public class Main {
         Scheduler scheduler = new Scheduler();
         MorningJob morningJob = new MorningJob(resourceFactory.getReservationService());
         scheduler.addJob(morningJob);
+        scheduler.addJob(new Jobs.ReservationReminderSenderJob(resourceFactory.getReservationService()));
         
         // the job normally scheduled but just make sure at server start we execute it
         morningJob.execute();

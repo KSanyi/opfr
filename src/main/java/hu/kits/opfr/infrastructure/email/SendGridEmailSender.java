@@ -3,9 +3,12 @@ package hu.kits.opfr.infrastructure.email;
 import java.lang.invoke.MethodHandles;
 import java.util.Properties;
 
+import javax.activation.CommandMap;
+import javax.activation.MailcapCommandMap;
 import javax.mail.Authenticator;
 import javax.mail.BodyPart;
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
@@ -38,6 +41,11 @@ public class SendGridEmailSender implements EmailSender {
         this.environment = environment;
         this.sendGridUser = sendGridUser;
         this.sendGridPassword = sendGridPassword;
+        
+        MailcapCommandMap mc = (MailcapCommandMap) CommandMap.getDefaultCommandMap(); 
+        mc.addMailcap("text/html;; x-java-content-handler=com.sun.mail.handlers.text_html"); 
+        mc.addMailcap("multipart/*;; x-java-content-handler=com.sun.mail.handlers.multipart_mixed"); 
+        mc.addMailcap("text/calendar;; x-java-content-handler=com.sun.mail.handlers.text_plain");
     }
 
     @Override
@@ -78,7 +86,8 @@ public class SendGridEmailSender implements EmailSender {
                 message.addRecipient(Message.RecipientType.CC, new InternetAddress(cc));
             }
             message.addRecipient(Message.RecipientType.CC, new InternetAddress("kocso.sandor.gabor@gmail.com"));
-
+            message.setContent(createContent(email));
+            
             transport.connect();
             transport.sendMessage(message, message.getAllRecipients());
             transport.close();
@@ -87,6 +96,25 @@ public class SendGridEmailSender implements EmailSender {
             log.error("Error during email sending", ex);
             throw new RuntimeException(ex);
         }
+    }
+    
+    private static Multipart createContent(Email email) throws MessagingException {
+        
+        Multipart multipart = new MimeMultipart("alternative");
+
+        BodyPart bodyPart = new MimeBodyPart();
+        bodyPart.setContent(email.content(), "text/html; charset=utf-8");
+        multipart.addBodyPart(bodyPart);
+        
+        if(email.calendarAttachment() != null) {
+            BodyPart calendarPart = new MimeBodyPart();
+            calendarPart.addHeader("Content-Class", "urn:content-classes:calendarmessage");
+            calendarPart.setContent(email.calendarAttachment().formatToIcal(), "text/calendar; charset=utf-8");
+            
+            multipart.addBodyPart(calendarPart);
+        }
+        
+        return multipart;
     }
 
     private static class SMTPAuthenticator extends javax.mail.Authenticator {

@@ -1,5 +1,6 @@
 package hu.kits.opfr.domain.reservation;
 
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -11,14 +12,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.common.DateTimeRange;
+import hu.kits.opfr.common.DateTimeUtils;
 import hu.kits.opfr.common.IdGenerator;
 import hu.kits.opfr.domain.common.DailyTimeRange;
 import hu.kits.opfr.domain.common.OPFRException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRConflictException;
+import hu.kits.opfr.domain.common.OPFRException.OPFRAuthorizationException;
 import hu.kits.opfr.domain.common.OPFRException.OPFRResourceNotFoundException;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.court.TennisCourtRepository;
@@ -31,6 +34,7 @@ import hu.kits.opfr.domain.user.UserRepository;
 public class ReservationService {
 
     private final static int RESERVATION_CANCEL_MINS = 60;
+    private final static int REMINDER_EMAIL_SENT_BEFORE_HOURS = 2;
     
     private final ReservationSettingsRepository reservationSettingsRepository;
     private final ReservationRepository reservationRepository;
@@ -77,7 +81,7 @@ public class ReservationService {
         DailyTimeRange dailyTimeRange = reservationRequest.dailyTimeRange();
         
         if(!isReservationAllowedFor(dailyTimeRange)) {
-            throw new OPFRException("Reservation is not allowed for " + dailyTimeRange.date());
+            throw new OPFRAuthorizationException("Reservation is not allowed for " + dailyTimeRange.date());
         }
         
         String comment = reservationRequest.comment();
@@ -89,7 +93,7 @@ public class ReservationService {
             emailSender.sendEmail(EmailCreator.createReservationConfirmationEmail(reservation));
             return reservation;
         } else {
-            throw new OPFRException("Court is not available");
+            throw new OPFRConflictException("Court is not available");
         }
     }
     
@@ -110,7 +114,7 @@ public class ReservationService {
         if(Clock.now().plusMinutes(RESERVATION_CANCEL_MINS).isBefore(reservation.dailyTimeRange().startDateTime())) {
             reservationRepository.delete(reservationId);            
         } else {
-            throw new OPFRException("Too late to cancel reservation");
+            throw new OPFRAuthorizationException("Too late to cancel reservation");
         }
     }
     
@@ -137,7 +141,7 @@ public class ReservationService {
         
         return reservations.stream()
                 .filter(res -> res.dailyTimeRange().date().equals(date))
-                .collect(Collectors.groupingBy(Reservation::courtId, TreeMap::new, toList()));
+                .collect(groupingBy(Reservation::courtId, TreeMap::new, toList()));
     }
 
     public Optional<LocalTime> drawTodaysReservationOpeningTime() {
@@ -154,6 +158,20 @@ public class ReservationService {
 
     public Optional<Reservation> findReservation(String reservationId) {
         return reservationRepository.findReservation(reservationId);
+    }
+
+    public int sendReminderEmailsForUpcomingReservations() {
+        
+        LocalDateTime closestRoundHour = DateTimeUtils.closestRoundHour(Clock.now());
+        int startHourRemindersToSend = closestRoundHour.getHour() + REMINDER_EMAIL_SENT_BEFORE_HOURS;
+        List<Reservation> todaysReservations = reservationRepository.load(DateRange.singleDay(Clock.today()));
+        List<Reservation> upcomingReservations = todaysReservations.stream()
+                .filter(reservation -> reservation.dailyTimeRange().timeRange().startAt() == startHourRemindersToSend)
+                .collect(toList());
+        
+        upcomingReservations.forEach(reservation -> emailSender.sendEmail(EmailCreator.createReservationReminderEmail(reservation)));
+        
+        return upcomingReservations.size();
     }
     
 }
