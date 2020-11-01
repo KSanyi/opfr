@@ -54,6 +54,9 @@ public class SendGridEmailSender implements EmailSender {
         if(environment != Environment.LIVE) {
             log.info("No email sending in {}. Email {} not sent", environment, email);
             return;
+        } else if(email.recipient().contains("test")) {
+            log.info("No email sending for . Email {} not sent", email.recipient(), email);
+            return;
         }
         
         Properties props = new Properties();
