@@ -69,6 +69,7 @@ public class HttpServer {
             });
             path("api/reservations", () -> {
                 get("/calendar", reservationHandler::showReservationsCalendar);
+                get("/simple-calendar", reservationHandler::showSimpleReservationsCalendar);
                 get(":reservationId", reservationHandler::getReservation);
                 get(reservationHandler::listPlayersReservations);
                 post(reservationHandler::reserveCourt);

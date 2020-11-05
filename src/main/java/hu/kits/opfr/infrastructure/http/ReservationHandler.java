@@ -7,6 +7,7 @@ import java.util.Map;
 import hu.kits.opfr.common.Clock;
 import hu.kits.opfr.common.DateRange;
 import hu.kits.opfr.common.DateTimeRange;
+import hu.kits.opfr.domain.common.TimeRange;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.reservation.Reservation;
 import hu.kits.opfr.domain.reservation.ReservationService;
@@ -61,6 +62,16 @@ class ReservationHandler {
         Map<LocalDate, Map<String, List<Reservation>>> courtAvailability = reservationService.listDailyReservationsPerCourt(dateRange);
         
         context.json(courtAvailability);
+    }
+    
+    void showSimpleReservationsCalendar(Context context) {
+        LocalDate fromDate = context.queryParam("from", LocalDate.class).get();
+        LocalDate toDate = context.queryParam("to", LocalDate.class).get();
+        DateRange dateRange = DateRange.of(fromDate, toDate);
+        
+        Map<LocalDate, List<TimeRange>> dailyFreeSlots = reservationService.listDailyFreeSlots(dateRange);
+        
+        context.json(dailyFreeSlots);
     }
     
 }

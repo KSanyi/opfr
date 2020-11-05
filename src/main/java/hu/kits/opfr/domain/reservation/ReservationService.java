@@ -7,6 +7,7 @@ import static java.util.stream.Collectors.toMap;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,6 +24,7 @@ import hu.kits.opfr.domain.common.OPFRException;
 import hu.kits.opfr.domain.common.OPFRException.OPFRAuthorizationException;
 import hu.kits.opfr.domain.common.OPFRException.OPFRConflictException;
 import hu.kits.opfr.domain.common.OPFRException.OPFRResourceNotFoundException;
+import hu.kits.opfr.domain.common.TimeRange;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.court.TennisCourtRepository;
 import hu.kits.opfr.domain.email.EmailCreator;
@@ -126,15 +128,41 @@ public class ReservationService {
     
     public Map<LocalDate, Map<String, List<Reservation>>> listDailyReservationsPerCourt(DateRange dateRange) {
         
+        List<TennisCourt> tennisCourts = tennisCourtRepository.listAll();
         List<Reservation> reservations = reservationRepository.load(dateRange);
         
         return dateRange.days().collect(toMap(
                 date -> date,
-                date -> createReservationsByCourt(date, reservations),
+                date -> createReservationsByCourt(date, reservations, tennisCourts),
                 (t1, t2) -> t2,
                 TreeMap::new));
     }
     
+    public Map<LocalDate, List<TimeRange>> listDailyFreeSlots(DateRange dateRange) {
+        
+        List<TennisCourt> tennisCourts = tennisCourtRepository.listAll();
+        
+        Map<LocalDate, Map<String, List<Reservation>>> dailyReservationsPerCourt = listDailyReservationsPerCourt(dateRange);
+        return dailyReservationsPerCourt.entrySet().stream().collect(
+                toMap(
+                    e -> e.getKey(), 
+                    e -> calculateFreeSlots(e.getValue(), tennisCourts)));
+    }
+    
+    private static List<TimeRange> calculateFreeSlots(Map<String, List<Reservation>> reservationsByCourt, List<TennisCourt> tennisCourts) {
+        
+        List<TimeRange> freeSlots = new ArrayList<>();
+        for(var court : tennisCourts) {
+            List<TimeRange> reservedRanges = reservationsByCourt.get(court.id()).stream()
+                    .map(res -> res.dailyTimeRange().timeRange())
+                    .collect(toList());
+            List<TimeRange> freeSlotsForCourt = court.courtAvailibility().minus(reservedRanges);
+            freeSlots = TimeRange.union(freeSlotsForCourt);
+        }
+        
+        return freeSlots;
+    }
+
     private boolean isCourtAvailableAt(TennisCourt court, DailyTimeRange dailyTimeRange) {
         
         if(!court.courtAvailibility().contains(dailyTimeRange.timeRange())) {
@@ -148,11 +176,13 @@ public class ReservationService {
                 .anyMatch(dailyTimeRange::intersectWith);
     }
     
-    private static Map<String, List<Reservation>> createReservationsByCourt(LocalDate date, List<Reservation> reservations) {
+    private static Map<String, List<Reservation>> createReservationsByCourt(LocalDate date, List<Reservation> reservations, List<TennisCourt> tennisCourts) {
         
-        return reservations.stream()
+        Map<String, List<Reservation>> reservationsByCourt = reservations.stream()
                 .filter(res -> res.dailyTimeRange().date().equals(date))
                 .collect(groupingBy(Reservation::courtId, TreeMap::new, toList()));
+        
+        return tennisCourts.stream().collect(toMap(court -> court.id(), court -> reservationsByCourt.getOrDefault(court.id(), List.of())));
     }
 
     public Optional<LocalTime> drawTodaysReservationOpeningTime() {
