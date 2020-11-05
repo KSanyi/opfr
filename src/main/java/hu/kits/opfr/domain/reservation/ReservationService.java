@@ -157,10 +157,10 @@ public class ReservationService {
                     .map(res -> res.dailyTimeRange().timeRange())
                     .collect(toList());
             List<TimeRange> freeSlotsForCourt = court.courtAvailibility().minus(reservedRanges);
-            freeSlots = TimeRange.union(freeSlotsForCourt);
+            freeSlots.addAll(freeSlotsForCourt);
         }
         
-        return freeSlots;
+        return TimeRange.union(TimeRange.union(freeSlots));
     }
 
     private boolean isCourtAvailableAt(TennisCourt court, DailyTimeRange dailyTimeRange) {

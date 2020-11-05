@@ -4,10 +4,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-
-import hu.kits.opfr.common.Pair;
 
 public record TimeRange(int startAt, int hours) {
 
