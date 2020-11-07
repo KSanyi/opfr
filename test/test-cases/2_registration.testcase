@@ -7,7 +7,7 @@ response-body:
 []
 
 Call 2
-description: Creates a new user
+description: Creates a new admin user
 url: <url-base>/api/users
 method: POST
 request:
@@ -38,60 +38,59 @@ response-body:
 }]
 
 Call 4
-description: Authenticates the created user
-url: <url-base>/api/users/authenticate/ksanyi
+description: A new user registers
+url: <url-base>/api/users/register
 method: POST
 request:
 {
-    "password": "Alma1234"
+    "userId":"kpeti",
+    "phone":"+36703699208",
+    "name":"Kiss Péter",
+    "email":"peti.kiss@gmail.com",
+    "password": "Korte1234"
 }
 response-status: 200
-response-body:
-{
-  "role": "ADMIN",
-  "phone": "+36703699208",
-  "name": "Kócsó Sándor",
-  "userId": "ksanyi",
-  "email": "kocso.sandor.gabor@gmail.com",
-  "status": "ACTIVE"
-}
 
 Call 5
-description: Changes the password of the created user
-url: <url-base>/api/users/change-password/ksanyi
-method: POST
-request:
-{
-    "password": "Alma1234",
-    "newPassword": "Korte1234"
-}
+description: Lists the newly registered users
+url: <url-base>/api/users/new-registrations
+method: GET
 response-status: 200
+response-body:
+[
+  {
+    "role": "MEMBER",
+    "phone": "+36703699208",
+    "name": "Kiss Péter",
+    "userId": "kpeti",
+    "email": "peti.kiss@gmail.com",
+    "status": "REGISTERED"
+  },
+]
 
 Call 6
-description: Tries to authenticate with the old password
-url: <url-base>/api/users/authenticate/ksanyi
+description: The registered but not activated user can not authenticate
+url: <url-base>/api/users/authenticate/kpeti
 method: POST
 request:
 {
-    "password": "Alma1234"
+    "password": "Korte1234"
 }
 response-status: 401
 
 Call 7
-description: Authenticates with the new password
-url: <url-base>/api/users/authenticate/ksanyi
+description: Activate the user
+url: <url-base>/api/users/activate/kpeti
+method: POST
+
+response-status: 200
+
+Call 8
+description: Now the activated user can authenticate
+url: <url-base>/api/users/authenticate/kpeti
 method: POST
 request:
 {
     "password": "Korte1234"
 }
 response-status: 200
-response:
-{
-  "role": "ADMIN",
-  "phone": "+36703699208",
-  "name": "Kócsó Sándor",
-  "userId": "ksanyi",
-  "email": "kocso.sandor.gabor@gmail.com",
-  "status": "ACTIVE"
-}

@@ -17,6 +17,7 @@ import hu.kits.opfr.domain.common.OPFRException.OPFRConflictException;
 import hu.kits.opfr.domain.common.OPFRException.OPFRResourceNotFoundException;
 import hu.kits.opfr.domain.user.Role;
 import hu.kits.opfr.domain.user.UserData;
+import hu.kits.opfr.domain.user.UserData.Status;
 import hu.kits.opfr.domain.user.UserRepository;
 import hu.kits.opfr.domain.user.Users;
 
@@ -29,7 +30,7 @@ public class UserJdbcRepository implements UserRepository {
     private static final String COLUMN_ROLE = "ROLE";
     private static final String COLUMN_PHONE = "PHONE";
     private static final String COLUMN_EMAIL = "EMAIL";
-    private static final String COLUMN_ACTIVE = "ISACTIVE";
+    private static final String COLUMN_STATUS = "STATUS";
     
     private final Jdbi jdbi;
     
@@ -72,7 +73,7 @@ public class UserJdbcRepository implements UserRepository {
                 Role.valueOf(rs.getString(COLUMN_ROLE)), 
                 rs.getString(COLUMN_PHONE),
                 rs.getString(COLUMN_EMAIL),
-                rs.getBoolean(COLUMN_ACTIVE));
+                Status.valueOf(rs.getString(COLUMN_STATUS)));
     }
 
     @Override
@@ -105,7 +106,7 @@ public class UserJdbcRepository implements UserRepository {
         valuesMap.put(COLUMN_ROLE, user.role().name());
         valuesMap.put(COLUMN_PHONE, user.phone());
         valuesMap.put(COLUMN_EMAIL, user.email());
-        valuesMap.put(COLUMN_ACTIVE, user.isActive());
+        valuesMap.put(COLUMN_STATUS, user.status().name());
         
         return valuesMap;
     }
@@ -124,6 +125,12 @@ public class UserJdbcRepository implements UserRepository {
         } else {
             throw new OPFRResourceNotFoundException("User '" + userId + "' not found");
         }
+    }
+    
+    @Override
+    public void activateUser(String userId) {
+        UserData user = loadUser(userId);
+        JdbiUtil.executeUpdate(jdbi, TABLE_USER, Map.of(COLUMN_STATUS, user.status().name()), Map.of(COLUMN_STATUS, Status.ACTIVE.name()), COLUMN_USERID, userId);
     }
 
     @Override

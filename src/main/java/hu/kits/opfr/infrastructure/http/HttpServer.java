@@ -57,6 +57,9 @@ public class HttpServer {
             path("api/users", () -> {
                 get(usersHandler::listAllUsers);
                 post(usersHandler::saveNewUser);
+                post("/register", usersHandler::register);
+                get("/new-registrations", usersHandler::listNewlyRegisteredUsers);
+                post("/activate/:userId", usersHandler::activate);
                 put(":userId", usersHandler::updateUser);
                 delete(":userId", usersHandler::deleteUser);
                 post("/authenticate/:userId", usersHandler::authenticateUser);

@@ -8,9 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import hu.kits.opfr.common.Pair;
+import hu.kits.opfr.domain.common.OPFRException;
+import hu.kits.opfr.domain.email.EmailCreator;
+import hu.kits.opfr.domain.email.EmailSender;
 import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
 import hu.kits.opfr.domain.user.Requests.UserCreationRequest;
 import hu.kits.opfr.domain.user.Requests.UserDataUpdateRequest;
+import hu.kits.opfr.domain.user.Requests.UserRegistrationRequest;
+import hu.kits.opfr.domain.user.UserData.Status;
 import hu.kits.opfr.domain.user.password.PasswordGenerator;
 import hu.kits.opfr.domain.user.password.PasswordHasher;
 
@@ -19,10 +24,12 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     
     private final UserRepository userRepository;
+    private final EmailSender emailSender;
     private final PasswordHasher passwordHasher;
     
-    public UserService(UserRepository userRepository, PasswordHasher passwordHasher) {
+    public UserService(UserRepository userRepository, EmailSender emailSender, PasswordHasher passwordHasher) {
         this.userRepository = userRepository;
+        this.emailSender = emailSender;
         this.passwordHasher = passwordHasher;
     }
     
@@ -35,8 +42,50 @@ public class UserService {
         return users;
     }
     
+    public List<UserData> loadNewlyRegisteredUsers() {
+
+        Users users = userRepository.loadAllUsers();
+        
+        return users.loadNewlyRegistered();
+    }
+    
     public UserData findUser(String userId) {
         return userRepository.loadUser(userId);
+    }
+    
+    public void register(UserRegistrationRequest userRegistrationRequest) {
+        
+        UserData userData = new UserData(userRegistrationRequest.userId(), 
+                userRegistrationRequest.name(), 
+                Role.MEMBER, 
+                userRegistrationRequest.phone(), 
+                userRegistrationRequest.email(), 
+                Status.REGISTERED);
+        
+        logger.info("Registering new user: {}", userData);
+        
+        Users users = userRepository.loadAllUsers();
+        
+        if(users.hasUserWithEmail(userData.email())) {
+            logger.info("User existis with this email address: {}", userData.email());
+            throw new OPFRException.OPFRConflictException("User exists with this email address");
+        }
+        
+        userRepository.saveNewUser(userData, userRegistrationRequest.password());
+        
+        emailSender.sendEmail(EmailCreator.createRegistrationNotificationEmail(users.adminEmails(), userData));
+    }
+    
+    public void activateUser(String userId) {
+        userRepository.activateUser(userId);
+        
+        logger.info("Activating user {}", userId);
+        
+        UserData userData = userRepository.loadUser(userId);
+        
+        emailSender.sendEmail(EmailCreator.createActivationNotificationEmail(userData));
+        
+        logger.info("User {} is activated", userId);
     }
     
     public void saveNewUser(UserCreationRequest userCreationRequest) {
@@ -73,11 +122,11 @@ public class UserService {
             String passwordHash = userWithPasswordHash.get().getSecond();
             
             if(passwordHasher.checkPassword(passwordHash, password)) {
-                if(user.isActive()) {
+                if(user.status() == Status.ACTIVE) {
                     logger.info("Authentication success for user '{}'", userId);
                     return user;
                 } else {
-                    logger.info("Authentication failure. User '{}' is inactive", userId);
+                    logger.info("Authentication failure. User '{}' status is: {}", userId, user.status());
                     throw new AuthenticationException("User is inactive");
                 }
             } else {

@@ -20,4 +20,6 @@ public interface UserRepository {
 
     UserData loadUser(String userId);
 
+    void activateUser(String userId);
+
 }

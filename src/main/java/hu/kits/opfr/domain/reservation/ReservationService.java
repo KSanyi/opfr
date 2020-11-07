@@ -1,5 +1,6 @@
 package hu.kits.opfr.domain.reservation;
 
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
@@ -180,6 +181,7 @@ public class ReservationService {
         
         Map<String, List<Reservation>> reservationsByCourt = reservations.stream()
                 .filter(res -> res.dailyTimeRange().date().equals(date))
+                .sorted(comparing((Reservation res) -> res.dailyTimeRange().timeRange().startAt()).thenComparing(res -> res.courtId()))
                 .collect(groupingBy(Reservation::courtId, TreeMap::new, toList()));
         
         return tennisCourts.stream().collect(toMap(court -> court.id(), court -> reservationsByCourt.getOrDefault(court.id(), List.of())));

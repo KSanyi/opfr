@@ -6,6 +6,7 @@ import hu.kits.opfr.domain.user.AuthenticationException;
 import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
 import hu.kits.opfr.domain.user.Requests.UserCreationRequest;
 import hu.kits.opfr.domain.user.Requests.UserDataUpdateRequest;
+import hu.kits.opfr.domain.user.Requests.UserRegistrationRequest;
 import hu.kits.opfr.domain.user.UserData;
 import hu.kits.opfr.domain.user.UserService;
 import io.javalin.http.Context;
@@ -22,6 +23,11 @@ class UserHandler {
     
     void listAllUsers(Context context) {
         List<UserData> users = userService.loadAllUsers();
+        context.json(users);
+    }
+    
+    void listNewlyRegisteredUsers(Context context) {
+        List<UserData> users = userService.loadNewlyRegisteredUsers();
         context.json(users);
     }
     
@@ -42,6 +48,18 @@ class UserHandler {
         UserCreationRequest userCreationRequest = RequestParser.parseUserCreationRequest(context.body());
         
         userService.saveNewUser(userCreationRequest);
+    }
+    
+    void register(Context context) {
+        UserRegistrationRequest userRegistrationRequest = RequestParser.parseUserRegistrationRequest(context.body());
+        
+        userService.register(userRegistrationRequest);
+    }
+    
+    void activate(Context context) {
+        String userId = context.pathParam("userId");
+        
+        userService.activateUser(userId);
     }
     
     void updateUser(Context context) {

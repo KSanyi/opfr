@@ -70,6 +70,7 @@ public class JsonMapper {
                 .put("name", user.name())
                 .put("email", user.email())
                 .put("phone", user.phone())
+                .put("status", user.status())
                 .put("role", user.role().name());
     }
     

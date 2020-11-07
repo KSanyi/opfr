@@ -7,14 +7,15 @@ import java.util.Optional;
 import hu.kits.opfr.common.Pair;
 import hu.kits.opfr.domain.user.Role;
 import hu.kits.opfr.domain.user.UserData;
+import hu.kits.opfr.domain.user.UserData.Status;
 import hu.kits.opfr.domain.user.UserRepository;
 import hu.kits.opfr.domain.user.Users;
 
 public class UsersFakeRepository implements UserRepository {
 
     private final List<UserData> users = new ArrayList<>(List.of(
-            new UserData("testUser1", "Test user 1", Role.MEMBER, "+362012345678", "test1@opfr.hu", true),
-            new UserData("testUser2", "Test user 2", Role.MEMBER, "+367012345678", "test2@opfr.hu", true)));
+            new UserData("testUser1", "Test user 1", Role.MEMBER, "+362012345678", "test1@opfr.hu", Status.ACTIVE),
+            new UserData("testUser2", "Test user 2", Role.MEMBER, "+367012345678", "test2@opfr.hu", Status.ACTIVE)));
     
     @Override
     public Users loadAllUsers() {
@@ -49,6 +50,10 @@ public class UsersFakeRepository implements UserRepository {
     @Override
     public UserData loadUser(String userId) {
         return users.stream().filter(user -> user.userId().equals(userId)).findAny().get();
+    }
+
+    @Override
+    public void activateUser(String userId) {
     }
 
 }

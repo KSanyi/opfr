@@ -8,7 +8,7 @@ request:
     "phone": "+36703699208",
     "name": "Kócsó Sándor",
     "userId": "ksanyi",
-    "isActive": true,
+    "status": "ACTIVE",
     "email": "kocso.sandor.gabor@gmail.com",
     "password": "Alma1234"
 }
@@ -102,7 +102,8 @@ response-body:
     "phone": "+36703699208",
     "name": "Kócsó Sándor",
     "userId": "ksanyi",
-    "email": "kocso.sandor.gabor@gmail.com"
+    "email": "kocso.sandor.gabor@gmail.com",
+    "status": "ACTIVE"
   },
   "courtId": "1",
   "timestamp": "2020-09-01T09:00"
@@ -129,7 +130,8 @@ response-body:
     "phone": "+36703699208",
     "name": "Kócsó Sándor",
     "userId": "ksanyi",
-    "email": "kocso.sandor.gabor@gmail.com"
+    "email": "kocso.sandor.gabor@gmail.com",
+    "status": "ACTIVE"
   },
   "courtId": "1",
   "timestamp": "2020-09-01T09:00"
@@ -157,7 +159,8 @@ response-body:
     "phone": "+36703699208",
     "name": "Kócsó Sándor",
     "userId": "ksanyi",
-    "email": "kocso.sandor.gabor@gmail.com"
+    "email": "kocso.sandor.gabor@gmail.com",
+    "status": "ACTIVE"
   },
   "courtId": "1",
   "timestamp": "2020-09-01T09:00"
@@ -207,7 +210,8 @@ response-body:
         "phone": "+36703699208",
         "name": "Kócsó Sándor",
         "userId": "ksanyi",
-        "email": "kocso.sandor.gabor@gmail.com"
+        "email": "kocso.sandor.gabor@gmail.com",
+        "status": "ACTIVE"
       },
       "courtId": "1",
       "timestamp": "2020-09-01T09:00"

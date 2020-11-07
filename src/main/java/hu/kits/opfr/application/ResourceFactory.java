@@ -22,7 +22,7 @@ public class ResourceFactory {
     
     public ResourceFactory(DataSource dataSource, EmailSender emailSender) {
         UserRepository userRepository = new UserJdbcRepository(dataSource);
-        userService = new UserService(userRepository, new DummyPasswordHasher());
+        userService = new UserService(userRepository, emailSender, new DummyPasswordHasher());
         TennisCourtRepository tennisCourtRepository = new TennisCourtFakeRepository();
         reservationService = new ReservationService(
                 new ReservationSettingsJdbcRepository(dataSource), 

@@ -17,6 +17,7 @@ import hu.kits.opfr.common.DateTimeRange;
 import hu.kits.opfr.common.StringUtil;
 import hu.kits.opfr.domain.user.Role;
 import hu.kits.opfr.domain.user.UserData;
+import hu.kits.opfr.domain.user.UserData.Status;
 import kong.unirest.Unirest;
 
 public class TestDataGenerator {
@@ -101,7 +102,7 @@ public class TestDataGenerator {
                     .put("phone", userData.phone())
                     .put("name", userData.name())
                     .put("userId", userData.userId())
-                    .put("isActive", userData.isActive())
+                    .put("isActive", userData.status().name())
                     .put("email", userData.email())
                     .put("password", "Alma1234");
             var response = Unirest.post(BASE_URL + "/api/users").body(json.toString()).asString();
@@ -127,7 +128,7 @@ public class TestDataGenerator {
             String email = userId + "@testmail.hu";
             String phone = generatePhoneNumber();
             
-            userDataList.add(new UserData(userId, name, Role.MEMBER, phone, email, true));
+            userDataList.add(new UserData(userId, name, Role.MEMBER, phone, email, Status.ACTIVE));
         }
         
         return userDataList;

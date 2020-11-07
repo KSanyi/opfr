@@ -10,9 +10,11 @@ import hu.kits.opfr.domain.common.TimeRange;
 import hu.kits.opfr.domain.reservation.Requests.ReservationRequest;
 import hu.kits.opfr.domain.user.Role;
 import hu.kits.opfr.domain.user.UserData;
+import hu.kits.opfr.domain.user.UserData.Status;
 import hu.kits.opfr.domain.user.Requests.PasswordChangeRequest;
 import hu.kits.opfr.domain.user.Requests.UserCreationRequest;
 import hu.kits.opfr.domain.user.Requests.UserDataUpdateRequest;
+import hu.kits.opfr.domain.user.Requests.UserRegistrationRequest;
 
 public class RequestParser {
 
@@ -71,6 +73,20 @@ public class RequestParser {
         }
     }
     
+    public static UserRegistrationRequest parseUserRegistrationRequest(String jsonString) {
+        try {
+            JSONObject jsonObject = new JSONObject(jsonString);
+            return new UserRegistrationRequest(
+                    jsonObject.getString("userId"),
+                    jsonObject.getString("name"),
+                    jsonObject.getString("phone"),
+                    jsonObject.getString("email"),
+                    jsonObject.getString("password"));
+        } catch(JSONException | IllegalArgumentException ex) {
+            throw new HttpServer.BadRequestException(ex.getMessage());
+        }
+    }
+    
     public static UserDataUpdateRequest parseUserDataUpdateRequest(String jsonString) {
         try {
             JSONObject jsonObject = new JSONObject(jsonString);
@@ -88,12 +104,12 @@ public class RequestParser {
                 Role.valueOf(jsonObject.getString("role")),
                 jsonObject.getString("phone"),
                 jsonObject.getString("email"),
-                jsonObject.getBoolean("isActive"));
+                Status.valueOf(jsonObject.getString("status")));
     }
 
     public static String parsePassword(String jsonString) {
         JSONObject jsonObject = new JSONObject(jsonString);
         return jsonObject.getString("password");
     }
-    
+
 }
