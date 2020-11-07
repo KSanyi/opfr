@@ -15,14 +15,6 @@ request:
 response-status: 200
 
 Call 2
-description: Lists the reservations for a user
-url: <url-base>/api/reservations?player=ksanyi
-method: GET
-response-status: 200
-response-body:
-[]
-
-Call 3
 description: Check available courts for a time slot
 url: <url-base>/api/courts/available?date=2020-09-01&startAt=10&hours=1
 method: GET
@@ -56,7 +48,7 @@ response-body:
   }
 ]
 
-Call 4
+Call 3
 set-time: 2020-09-01T09:00
 description: Check available dates to reserve
 url: <url-base>/api/reservations-range
@@ -68,7 +60,7 @@ response-body:
     "to": "2020-09-07T23:00"
 }
 
-Call 5
+Call 4
 description: Create a reservation
 url: <url-base>/api/reservations
 method: POST
@@ -109,7 +101,7 @@ response-body:
   "timestamp": "2020-09-01T09:00"
 }
 
-Call 6
+Call 5
 description: Find a reservation by reservation id
 url: <url-base>/api/reservations/23c69354-d9e8-4d07-9e84-000000000001
 method: GET
@@ -138,7 +130,7 @@ response-body:
 }
 
 
-Call 7
+Call 6
 description: Lists the reservations for a user
 url: <url-base>/api/reservations?player=ksanyi
 method: GET
@@ -166,7 +158,7 @@ response-body:
   "timestamp": "2020-09-01T09:00"
 }]
 
-Call 8
+Call 7
 description: Lists the reservations in the system in a calendar like view
 url: <url-base>/api/reservations/calendar?from=2020-08-30&to=2020-09-02
 method: GET
@@ -223,7 +215,7 @@ response-body:
   }
 }
 
-Call 9
+Call 8
 description: Check available courts for a time slot
 url: <url-base>/api/courts/available?date=2020-09-01&startAt=11&hours=1
 method: GET
@@ -252,7 +244,7 @@ response-body:
   }
 ]
 
-Call 10
+Call 9
 description: Cancel a reservation
 url: <url-base>/api/reservations/23c69354-d9e8-4d07-9e84-000000000001
 method: DELETE

@@ -1,12 +1,4 @@
 Call 1
-description: Lists the users in the system
-url: <url-base>/api/users
-method: GET
-response-status: 200
-response-body:
-[]
-
-Call 2
 description: Creates a new admin user
 url: <url-base>/api/users
 method: POST
@@ -22,22 +14,7 @@ request:
 }
 response-status: 200
 
-Call 3
-description: Lists the users in the system
-url: <url-base>/api/users
-method: GET
-response-status: 200
-response-body:
-[{
-  "role": "ADMIN",
-  "phone": "+36703699208",
-  "name": "Kócsó Sándor",
-  "userId": "ksanyi",
-  "email": "kocso.sandor.gabor@gmail.com",
-  "status": "ACTIVE"
-}]
-
-Call 4
+Call 2
 description: A new user registers
 url: <url-base>/api/users/register
 method: POST
@@ -51,7 +28,7 @@ request:
 }
 response-status: 200
 
-Call 5
+Call 3
 description: Lists the newly registered users
 url: <url-base>/api/users/new-registrations
 method: GET
@@ -68,7 +45,7 @@ response-body:
   },
 ]
 
-Call 6
+Call 4
 description: The registered but not activated user can not authenticate
 url: <url-base>/api/users/authenticate/kpeti
 method: POST
@@ -78,14 +55,14 @@ request:
 }
 response-status: 401
 
-Call 7
+Call 5
 description: Activate the user
 url: <url-base>/api/users/activate/kpeti
 method: POST
 
 response-status: 200
 
-Call 8
+Call 6
 description: Now the activated user can authenticate
 url: <url-base>/api/users/authenticate/kpeti
 method: POST

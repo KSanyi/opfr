@@ -90,7 +90,14 @@ public class UserService {
     
     public void saveNewUser(UserCreationRequest userCreationRequest) {
         
-        logger.info("Saving new user: {}", userCreationRequest.userData());
+        UserData userData = userCreationRequest.userData();
+        logger.info("Saving new user: {}", userData);
+        
+        Users users = userRepository.loadAllUsers();
+        if(users.hasUserWithEmail(userData.email())) {
+            logger.info("User existis with this email address: {}", userData.email());
+            throw new OPFRException.OPFRConflictException("User exists with this email address");
+        }
         
         String passwordHash = passwordHasher.createNewPasswordHash(userCreationRequest.password());
         
