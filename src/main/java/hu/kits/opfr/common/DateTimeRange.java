@@ -25,8 +25,6 @@ public record DateTimeRange(LocalDateTime from, LocalDateTime to) implements Com
         if(to.isBefore(from)) {
             throw new IllegalArgumentException("Invalid interval: " + from + " - " + to);
         }
-        this.from = from;
-        this.to = to;
     }
     
     public boolean contains(LocalDateTime date) {

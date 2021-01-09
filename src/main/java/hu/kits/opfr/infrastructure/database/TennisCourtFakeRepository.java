@@ -16,7 +16,7 @@ public class TennisCourtFakeRepository implements TennisCourtRepository {
         
         tennisCourts.add(new TennisCourt("1", "1-es pálya", new TimeRange(0, 24)));
         tennisCourts.add(new TennisCourt("2", "2-es pálya", new TimeRange(0, 24)));
-        tennisCourts.add(new TennisCourt("3", "3-es pálya", new TimeRange(0, 24)));
+        tennisCourts.add(new TennisCourt("3", "3-as pálya", new TimeRange(0, 24)));
         tennisCourts.add(new TennisCourt("4", "4-es pálya (hátsó)", new TimeRange(6, 16)));
         tennisCourts.add(new TennisCourt("5", "5-ös pálya (hátsó)", new TimeRange(6, 16)));
     }

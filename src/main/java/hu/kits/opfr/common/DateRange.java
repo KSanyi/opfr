@@ -41,8 +41,6 @@ public record DateRange(LocalDate from, LocalDate to) implements Comparable<Date
         if(to.isBefore(from)) {
             throw new IllegalArgumentException("Invalid interval: " + from + " - " + to);
         }
-        this.from = from;
-        this.to = to;
     }
     
     public boolean contains(LocalDate date) {

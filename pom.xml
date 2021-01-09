@@ -16,7 +16,6 @@
         <java.version>14</java.version>
         <maven.compiler.source>14</maven.compiler.source>
         <maven.compiler.target>14</maven.compiler.target>
-
         <jetty.version>9.4.27.v20200227</jetty.version>
     </properties>
 
