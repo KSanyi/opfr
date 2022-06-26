@@ -17,12 +17,14 @@ import hu.kits.opfr.domain.common.TimeRange;
 import hu.kits.opfr.domain.court.TennisCourt;
 import hu.kits.opfr.domain.reservation.Reservation;
 import hu.kits.opfr.domain.user.UserData;
+import io.javalin.plugin.json.JsonMapper;
 
-public class JsonMapper {
+public class OpfrJsonMapper implements JsonMapper {
 
     private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
     
-    public static String mapToJsonString(Object object) {
+    @Override
+    public String toJsonString(Object object) {
         return mapToJson(object).toString();
     }
     
@@ -30,12 +32,12 @@ public class JsonMapper {
         
         if(object instanceof Collection) {
             Collection<?> collection = (Collection<?>)object; 
-            return new JSONArray(collection.stream().map(JsonMapper::mapToJson).collect(toList()));
+            return new JSONArray(collection.stream().map(OpfrJsonMapper::mapToJson).collect(toList()));
         } else if(object instanceof Map) {
             Map<?, ?> map = (Map<?, ?>)object;
             Map<?, ?> jsonEntriesMap = map.entrySet().stream().collect(toMap(
                     e -> e.getKey().toString(),
-                    e -> JsonMapper.mapToJson(e.getValue()),
+                    e -> OpfrJsonMapper.mapToJson(e.getValue()),
                     (a, b) -> a, LinkedHashMap::new));
             return new JSONObject(jsonEntriesMap);
         } else if(object instanceof TennisCourt) {

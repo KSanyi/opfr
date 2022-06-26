@@ -27,9 +27,9 @@ class TennisCourtsHandler {
     }
     
     void listAvailableCourts(Context context) {
-        LocalDate date = context.queryParam("date", LocalDate.class).get();
-        Integer startAt = context.queryParam("startAt", Integer.class).get();
-        Integer hours = context.queryParam("hours", Integer.class).get();
+        LocalDate date = context.queryParamAsClass("date", LocalDate.class).get();
+        Integer startAt = context.queryParamAsClass("startAt", Integer.class).get();
+        Integer hours = context.queryParamAsClass("hours", Integer.class).get();
         DailyTimeRange dailyTimeRange = new DailyTimeRange(date, new TimeRange(startAt, hours));
         context.json(reservationService.listAvailableCourts(dailyTimeRange));
     }

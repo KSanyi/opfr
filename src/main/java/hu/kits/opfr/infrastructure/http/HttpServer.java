@@ -21,11 +21,6 @@ import io.javalin.Javalin;
 import io.javalin.core.util.RouteOverviewPlugin;
 import io.javalin.core.validation.JavalinValidation;
 import io.javalin.http.Context;
-import io.javalin.plugin.json.JavalinJson;
-import io.javalin.plugin.openapi.OpenApiOptions;
-import io.javalin.plugin.openapi.OpenApiPlugin;
-import io.javalin.plugin.openapi.ui.SwaggerOptions;
-import io.swagger.v3.oas.models.info.Info;
 
 public class HttpServer {
 
@@ -44,27 +39,27 @@ public class HttpServer {
         
         app = Javalin.create(config -> {
             config.registerPlugin(new RouteOverviewPlugin("")); 
-            config.registerPlugin(new OpenApiPlugin(getOpenApiOptions()));
             config.defaultContentType = "application/json";
             //config.addStaticFiles("/public");
             config.enableCorsForAllOrigins();
             config.requestLogger(this::log);
+            config.jsonMapper(new OpfrJsonMapper());
         }).routes(() -> {
             path("api/docs", () -> {
                 get(apiDocHandler::createTestCasesList);
-                get(":testCase", apiDocHandler::createTestCaseDoc);
+                get("{testCase}", apiDocHandler::createTestCaseDoc);
             });
             path("api/users", () -> {
                 get(usersHandler::listAllUsers);
                 post(usersHandler::saveNewUser);
                 post("/register", usersHandler::register);
                 get("/new-registrations", usersHandler::listNewlyRegisteredUsers);
-                post("/activate/:userId", usersHandler::activate);
-                put(":userId", usersHandler::updateUser);
-                delete(":userId", usersHandler::deleteUser);
-                post("/authenticate/:userId", usersHandler::authenticateUser);
-                post("/generate-new-password/:userId", usersHandler::generateNewPassword);
-                post("/change-password/:userId", usersHandler::changePassword);
+                post("/activate/{userId}", usersHandler::activate);
+                put("{userId}", usersHandler::updateUser);
+                delete("{userId}", usersHandler::deleteUser);
+                post("/authenticate/{userId}", usersHandler::authenticateUser);
+                post("/generate-new-password/{userId}", usersHandler::generateNewPassword);
+                post("/change-password/{userId}", usersHandler::changePassword);
             });
             path("api/courts", () -> {
                 get(tennisCourtsHandler::listCourts);
@@ -73,10 +68,10 @@ public class HttpServer {
             path("api/reservations", () -> {
                 get("/calendar", reservationHandler::showReservationsCalendar);
                 get("/simple-calendar", reservationHandler::showSimpleReservationsCalendar);
-                get(":reservationId", reservationHandler::getReservation);
+                get("{reservationId}", reservationHandler::getReservation);
                 get(reservationHandler::listPlayersReservations);
                 post(reservationHandler::reserveCourt);
-                delete(":reservationId",reservationHandler::cancelReservation);
+                delete("{reservationId}",reservationHandler::cancelReservation);
             });
             path("api/reservations-range", () -> {
                 get(reservationHandler::getReservationRange);
@@ -85,8 +80,6 @@ public class HttpServer {
           .exception(OPFRException.class, this::handleException);
         
         this.port = port;
-        
-        JavalinJson.setToJsonMapper(JsonMapper::mapToJsonString);
         
         JavalinValidation.register(LocalDate.class, LocalDate::parse);
     }
@@ -107,6 +100,7 @@ public class HttpServer {
         logger.info("{} {} {} Status: {}", ctx.method(), ctx.path(), body, ctx.status());
     }
     
+    /*
     private static OpenApiOptions getOpenApiOptions() {
         Info applicationInfo = new Info()
             .version("1.0")
@@ -114,6 +108,7 @@ public class HttpServer {
         return new OpenApiOptions(applicationInfo).path("/swagger-docs").swagger(new SwaggerOptions("/swagger")
                 .title("My Swagger Documentation"));
     }
+    */
     
     public static class BadRequestException extends RuntimeException {
         

@@ -55,8 +55,8 @@ class ReservationHandler {
     }
     
     void showReservationsCalendar(Context context) {
-        LocalDate fromDate = context.queryParam("from", LocalDate.class).get();
-        LocalDate toDate = context.queryParam("to", LocalDate.class).get();
+        LocalDate fromDate = context.queryParamAsClass("from", LocalDate.class).get();
+        LocalDate toDate = context.queryParamAsClass("to", LocalDate.class).get();
         DateRange dateRange = DateRange.of(fromDate, toDate);
         
         Map<LocalDate, Map<String, List<Reservation>>> courtAvailability = reservationService.listDailyReservationsPerCourt(dateRange);
@@ -65,8 +65,8 @@ class ReservationHandler {
     }
     
     void showSimpleReservationsCalendar(Context context) {
-        LocalDate fromDate = context.queryParam("from", LocalDate.class).get();
-        LocalDate toDate = context.queryParam("to", LocalDate.class).get();
+        LocalDate fromDate = context.queryParamAsClass("from", LocalDate.class).get();
+        LocalDate toDate = context.queryParamAsClass("to", LocalDate.class).get();
         DateRange dateRange = DateRange.of(fromDate, toDate);
         
         Map<LocalDate, List<TimeRange>> dailyFreeSlots = reservationService.listDailyFreeSlots(dateRange);
